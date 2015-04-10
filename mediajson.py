@@ -83,8 +83,11 @@ class MediaJson:
            key = bucket.new_key(parts.path)
            key.set_metadata("Content-Type", mimetype)
            key.set_contents_from_filename(filepath)
-           print "created", s3_url
+           print "created", s3_url # FIXME add logging
        else:
-           print "key already existed:", s3_url
+           print "key already existed; updating:", s3_url # FIXME add logging
+           key = bucket.get_key(parts.path)
+           key.set_metadata("Content-Type", mimetype)
+           key.set_contents_from_filename(filepath) 
 
        return s3_url 
