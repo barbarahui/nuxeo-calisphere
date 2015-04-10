@@ -8,7 +8,7 @@ import boto
 import urlparse
 import magic
 
-class DeepHarvest:
+class MediaJson:
     
     def __init__(self):
         self.file_formats = ['image', 'audio', 'video', 'file']        
