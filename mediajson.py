@@ -4,16 +4,18 @@
 import sys, os
 import json
 import tempfile
-import boto
+from boto import connect_s3
+from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 import urlparse
 import magic
+import logging
 
 class MediaJson:
     
     def __init__(self):
         self.file_formats = ['image', 'audio', 'video', 'file']        
         self.filename_format = "{0}-media.json"
-
+ 
     def content_division(self, id, href, label, format='image', children={}):
          
         if format not in self.file_formats:
@@ -71,8 +73,13 @@ class MediaJson:
        parts = urlparse.urlsplit(s3_url)
        mimetype = magic.from_file(filepath, mime=True)
        
+       logging.debug('s3_url: {0}'.format(s3_url))
+       logging.debug('bucketpath: {0}'.format(bucketpath))
+       logging.debug('bucketbase: {0}'.format(bucketbase))
+ 
        if conn is None:
-           conn = boto.connect_s3()
+           # don't know why calling_format isn't getting read out of .aws/config file
+           conn = connect_s3(calling_format = OrdinaryCallingFormat()) 
 
        try:
            bucket = conn.get_bucket(bucketbase)
@@ -83,9 +90,9 @@ class MediaJson:
            key = bucket.new_key(parts.path)
            key.set_metadata("Content-Type", mimetype)
            key.set_contents_from_filename(filepath)
-           print "created", s3_url # FIXME add logging
+           logging.info("created {0}".format(s3_url))
        else:
-           print "key already existed; updating:", s3_url # FIXME add logging
+           logging.info("key already existed; updating: {0}".format(s3_url))
            key = bucket.get_key(parts.path)
            key.set_metadata("Content-Type", mimetype)
            key.set_contents_from_filename(filepath) 
