@@ -10,15 +10,16 @@ import urlparse
 import magic
 import logging
 
-class MediaJson:
-    
+FILE_FORMATS = ['image', 'audio', 'video', 'file']
+FILENAME_FORMAT = "{0}-media.json"
+
+class MediaJson():
     def __init__(self):
-        self.file_formats = ['image', 'audio', 'video', 'file']        
-        self.filename_format = "{0}-media.json"
+        pass
  
-    def content_division(self, id, href, label, format='image', children={}):
-         
-        if format not in self.file_formats:
+    def content_division(self, id, href, label, dimensions, format='image', children={}):
+
+        if format not in FILE_FORMATS:
             raise ValueError("Invalid format type. Expected one of: %s" % self.file_formats)
 
         content_division = {}
@@ -26,6 +27,7 @@ class MediaJson:
         content_division['href'] = href
         content_division['label'] = label
         content_division['format'] = format
+        content_division['dimensions'] = dimensions
 
         if children:
             # check that this is a valid content division?
@@ -98,3 +100,6 @@ class MediaJson:
            key.set_contents_from_filename(filepath) 
 
        return s3_url 
+
+if __name__ == '__main__':
+    sys.exit(main())
