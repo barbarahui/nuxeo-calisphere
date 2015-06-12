@@ -1,0 +1,8 @@
+{
+    "format": "bogus_format", 
+    "href": "https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/416789a4-ae06-4abf-b1f7-44a680c6cff8/file:content/AbandonedApartment.tif", 
+    "id": "416789a4-ae06-4abf-b1f7-44a680c6cff8", 
+    "label": "Abandoned Apartment. Boston, Massachusetts, 1936",
+    "dimensions": "1024:1024",
+    "extraneous": "test extraneous data"
+}

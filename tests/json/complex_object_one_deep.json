@@ -1,0 +1,29 @@
+{
+    "versionLabel": "0.4+",
+    "changeToken": "1432756153437",
+    "uid": "389c5ebe-e088-49d5-9861-7fa4a088a4b7",
+    "repository": "default",
+    "title": "A garden in Okayama",
+    "lastModified": "2015-05-27T19:49:13.43Z",
+    "facets": [
+        "Picture",
+        "Commentable",
+        "MultiviewPicture",
+        "Versionable",
+        "Publishable",
+        "DocumentsSizeStatistics",
+        "HasRelatedText",
+        "Folderish",
+        "NotCollectionMember",
+        "Orderable"
+    ],
+    "entity-type": "document",
+    "state": "project",
+    "isCheckedOut": true,
+    "parentRef": "4f451046-479d-4edb-a995-ae64b7f0ebb8",
+    "contextParameters": {
+        "documentURL": "/nuxeo/site/api/v1/id/389c5ebe-e088-49d5-9861-7fa4a088a4b7"
+    },
+    "path": "/asset-library/UCM/LIJA-metadata-completed/LIJA/UCM_LI_2003_063",
+    "type": "SampleCustomPicture"
+}

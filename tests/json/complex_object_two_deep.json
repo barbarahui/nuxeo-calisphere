@@ -1,0 +1,29 @@
+{
+    "versionLabel": "0.2+",
+    "changeToken": "1432756633201",
+    "uid": "9febada0-c920-4ec6-be94-cda9a517daac",
+    "repository": "default",
+    "title": "\u8776\u5343\u7a2e",
+    "lastModified": "2015-05-27T19:57:13.20Z",
+    "facets": [
+        "Picture",
+        "Commentable",
+        "MultiviewPicture",
+        "Versionable",
+        "Publishable",
+        "DocumentsSizeStatistics",
+        "HasRelatedText",
+        "Folderish",
+        "NotCollectionMember",
+        "Orderable"
+    ],
+    "entity-type": "document",
+    "state": "project",
+    "isCheckedOut": true,
+    "parentRef": "96c89cfc-dc43-409d-81b2-0db384747162",
+    "contextParameters": {
+        "documentURL": "/nuxeo/site/api/v1/id/9febada0-c920-4ec6-be94-cda9a517daac"
+    },
+    "path": "/asset-library/UCM/LIJA-metadata-completed/LIJA2/UCM_LI_1997_017A,B",
+    "type": "SampleCustomPicture"
+}

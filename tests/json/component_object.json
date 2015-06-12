@@ -1,0 +1,30 @@
+{
+    "versionLabel": "0.0",
+    "changeToken": "1404329296110",
+    "uid": "510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9",
+    "repository": "default",
+    "title": "UCM_LI_2003_063B_K.tif",
+    "lastModified": "2014-07-02T19:28:16.11Z",
+    "facets": [
+        "Picture",
+        "Commentable",
+        "MultiviewPicture",
+        "Versionable",
+        "Publishable",
+        "DocumentsSizeStatistics",
+        "HasRelatedText",
+        "Thumbnail",
+        "Folderish",
+        "NotCollectionMember",
+        "Orderable"
+    ],
+    "entity-type": "document",
+    "state": "project",
+    "isCheckedOut": true,
+    "parentRef": "389c5ebe-e088-49d5-9861-7fa4a088a4b7",
+    "contextParameters": {
+        "documentURL": "/nuxeo/site/api/v1/id/510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9"
+    },
+    "path": "/asset-library/UCM/LIJA-metadata-completed/LIJA/UCM_LI_2003_063/UCM_LI_2003_063B_K.tif",
+    "type": "SampleCustomPicture"
+}

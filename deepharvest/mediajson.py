@@ -10,13 +10,31 @@ import urlparse
 import magic
 import logging
 
-FILE_FORMATS = ['image', 'audio', 'video', 'file']
+VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
 FILENAME_FORMAT = "{0}-media.json"
+OBJECT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'structMap']
+COMPONENT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions']
 
 class MediaJson():
     def __init__(self):
         pass
  
+    def create_media_json(self, object, components=None):
+        '''
+        Given an object and its components, create a json representation 
+        compliant with these specs: https://github.com/ucldc/ucldc-docs/wiki/media.json
+        '''
+        media_json = {}
+
+        for key, value in object.iteritems():
+            if key in OBJECT_LEVEL_PROPERTIES:
+                if key in VALID_VALUES:
+                    if value not in VALID_VALUES[key]:
+                        raise ValueError("Invalid {}. Expected one of: {}".format(key, value))
+                media_json[key] = value
+        
+        return media_json 
+         
     def content_division(self, id, href, label, dimensions, format='image', children={}):
 
         if format not in FILE_FORMATS:
