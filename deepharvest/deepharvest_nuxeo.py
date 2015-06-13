@@ -54,7 +54,7 @@ class DeepHarvestNuxeo():
         metadata['label'] = obj['title']
         metadata['id'] = obj['uid']
         metadata['href'] = self.get_object_download_url(obj['uid'], obj['path'])
-        metadata['type'] = self.get_calisphere_object_type(obj['type'])
+        metadata['format'] = self.get_calisphere_object_type(obj['type'])
 
         return metadata 
 
@@ -64,7 +64,7 @@ class DeepHarvestNuxeo():
         metadata['label'] = obj['title']
         metadata['id'] = obj['uid']
         metadata['href'] = self.get_object_download_url(obj['uid'], obj['path'])
-        metadata['type'] = self.get_calisphere_object_type(obj['type'])
+        metadata['format'] = self.get_calisphere_object_type(obj['type'])
 
         return metadata
 
@@ -84,11 +84,16 @@ class DeepHarvestNuxeo():
             raise ValueError("Invalid type: {0} for: {1} Expected one of: {2}".format(nuxeo_type, self.path, TYPE_MAP.keys()))        
         return calisphere_type 
 
-    def generate_json(self, path):
-        ''' generate `deep harvest` json representation of nuxeo object for passing to Calisphere '''
-        deepharvest_json = {}
-         
-        return deepharvest_json        
+    def assemble_object_metadata(self, parent, components=None):
+        ''' 
+        given parent and component metadata, assemble one dict for the
+        object to pass to mediajson, including structMap
+        '''
+        assembled = parent
+        if components:
+            assembled['structMap'] = components
+ 
+        return assembled        
 
 if __name__ == "__main__":
     sys.exit(main())

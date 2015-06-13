@@ -22,9 +22,8 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.test_simple_object = os.path.join(test_json_dir, 'simple_object.json')
         self.test_complex_object_depth_one = os.path.join(test_json_dir, 'complex_object_one_deep.json')
         self.test_complex_object_depth_two = os.path.join(test_json_dir, 'complex_object_two_deep.json')
-        self.test_simple_deepharvest_json = os.path.join(test_json_dir, 'simple-media.json') 
         self.test_component_object = os.path.join(test_json_dir, 'component_object.json')
-
+ 
     def test_init(self):
         ''' test initialization of DeepHarvestNuxeo object '''
         dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, self.s3_refimages)
@@ -37,20 +36,22 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         objects = self.dh.fetch_objects() # FIXME mock this generator so we don't actually go over the network
         self.assertEqual(sum(1 for ob in objects), 215) # FIXME bad test! # of objects might change...
    
-    def test_get_parent_metadata(self):
-        ''' test getting top-level (parent) metadata for nuxeo object '''
+    def test_fetch_components_none(self):
+        ''' test getting components for simple object. should be none. '''
         obj = json.load(open(self.test_simple_object))
-        metadata = self.dh.get_parent_metadata(obj)
-        self.assertEqual(metadata['label'], u'Wooden box filled with vegetables, fruits, french fries, pie and shrimp')        
-        self.assertEqual(metadata['id'], u'fb0198b6-ffe6-483a-bb04-ef6f6c3504af')
-        self.assertEqual(metadata['href'], u'https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/fb0198b6-ffe6-483a-bb04-ef6f6c3504af/file:content/AlarmtillRGB.tif')
-        self.assertEqual(metadata['type'], 'image')
-        
+        components = self.dh.fetch_components(obj) # mock
+        self.assertEqual(len(components), 0) # FIXME 
+
     def test_fetch_components_depth_one(self):
         ''' test getting components for object with nested depth == 1 '''
         obj = json.load(open(self.test_complex_object_depth_one))
         components = self.dh.fetch_components(obj) # mock so we don't actually go over network
         self.assertEqual(len(components), 2) # FIXME bad test!
+        #md = []
+        #for c in components:
+        #    md.append(self.dh.get_component_metadata(c))
+        #jsonified = json.dumps(md, indent=4)
+        #print jsonified
 
     def test_fetch_components_depth_several(self):
         ''' test getting components for object with nested depth > 1 '''
@@ -59,6 +60,15 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         #components = self.dh.fetch_components(obj) # mock so we don't actually go over network
         #self.assertEqual(len(components), 61) # FIXME bad test! 
 
+    def test_get_parent_metadata(self):
+        ''' test getting top-level (parent) metadata for nuxeo object '''
+        obj = json.load(open(self.test_simple_object))
+        metadata = self.dh.get_parent_metadata(obj)
+        self.assertEqual(metadata['label'], u'Wooden box filled with vegetables, fruits, french fries, pie and shrimp')
+        self.assertEqual(metadata['id'], u'fb0198b6-ffe6-483a-bb04-ef6f6c3504af')
+        self.assertEqual(metadata['href'], u'https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/fb0198b6-ffe6-483a-bb04-ef6f6c3504af/file:content/AlarmtillRGB.tif')
+        self.assertEqual(metadata['format'], 'image')
+
     def test_get_component_metadata(self):
         ''' test getting metadata for a component of a complex object '''
         component_obj = json.load(open(self.test_component_object))
@@ -66,12 +76,7 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.assertEqual(metadata['label'], u'UCM_LI_2003_063B_K.tif')
         self.assertEqual(metadata['id'], u'510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9')
         self.assertEqual(metadata['href'], u'https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9/file:content/UCM_LI_2003_063B_K.tif')
-        self.assertEqual(metadata['type'], 'image')
-
-    def test_assemble_metadata(self):
-        ''' test assembling metadata for an object '''
-         
-
+        self.assertEqual(metadata['format'], 'image')
         #dh = deepharvest_nuxeo.DeepHarvestNuxeo('asset-library/UCM/LIJA-metadata-completed/LIJA2', self.s3_mediajson, self.s3_refimages)
         #objects = dh.fetch_objects()
         #for object in objects:
@@ -79,12 +84,6 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         #        jsonified = json.dumps(object, indent=4)
         #        print jsonified                
 
-    #def test_build_parent_object_json(self):
-        #''' test building json representation of a parent object '''
-        #json_expected = json.load(open(self.test_simple_deepharvest_json))
-        #json_generated = self.dh.generate_json('/asset-library/UCD/Halberstadt/AbandonedApartment.tif')
-        #self.assertEqual(json_expected, json_generated)
-        
     # test getting object type
 
     # test video

@@ -10,48 +10,66 @@ import urlparse
 import magic
 import logging
 
-VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
-FILENAME_FORMAT = "{0}-media.json"
 OBJECT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'structMap']
 COMPONENT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions']
+VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
+S3_URL_FORMAT = "https://{0}/{1}"
+FILENAME_FORMAT = "{0}-media.json"
 
 class MediaJson():
     def __init__(self):
         pass
  
-    def create_media_json(self, object, components=None):
+    def create_media_json(self, object, components=[]):
         '''
         Given an object and its components, create a json representation 
         compliant with these specs: https://github.com/ucldc/ucldc-docs/wiki/media.json
+
+        object is a dict of properties
+        components is a list of dicts of properties
         '''
         media_json = {}
 
-        for key, value in object.iteritems():
+        # extract parent level metadata
+        media_json = self._create_parent_json(object)
+        
+        # assemble structMap for any components
+        structmap = [self._create_component_json(c) for c in components]
+        if structmap:
+            media_json['structMap'] = structmap
+
+        return media_json 
+         
+    def _create_parent_json(self, source_object):
+        ''' 
+           map parent-level metadata for source object to media.json scheme
+           source_object is a dict of properties for the item
+        '''
+        parent_json = {}
+        for key, value in source_object.iteritems():
             if key in OBJECT_LEVEL_PROPERTIES:
                 if key in VALID_VALUES:
                     if value not in VALID_VALUES[key]:
                         raise ValueError("Invalid {}. Expected one of: {}".format(key, value))
-                media_json[key] = value
-        
-        return media_json 
-         
-    def content_division(self, id, href, label, dimensions, format='image', children={}):
+                parent_json[key] = value
+       
+        return parent_json 
 
-        if format not in FILE_FORMATS:
-            raise ValueError("Invalid format type. Expected one of: %s" % self.file_formats)
 
-        content_division = {}
-        content_division['id'] = id
-        content_division['href'] = href
-        content_division['label'] = label
-        content_division['format'] = format
-        content_division['dimensions'] = dimensions
-
-        if children:
-            # check that this is a valid content division?
-            content_division['structMap'] = children
-
-        return content_division
+    def _create_component_json(self, source_component):
+        '''
+            map component-level metadata for source object to media.json scheme
+            source_component is a dict of properties for the component
+        '''
+        component_json = {} 
+        for key, value in source_component.iteritems():
+            if key in COMPONENT_LEVEL_PROPERTIES:
+                if key in VALID_VALUES:
+                    if value not in VALID_VALUES[key]:
+                        raise ValueError("Invalid {}. Expected one of: {}".format(key, value))    
+                component_json[key] = value
+      
+        return component_json
 
     def stash_media_json(self, media_dict, bucket, s3_conn=None):
         """ stash <id>-media.json file on S3 """
@@ -89,7 +107,7 @@ class MediaJson():
        """
        bucketpath = bucketpath.strip("/")
        bucketbase = bucketpath.split("/")[0]   
-       s3_url = "s3://{0}/{1}".format(bucketpath, obj_key)
+       s3_url = S3_URL_FORMAT.format(bucketpath, obj_key)
        parts = urlparse.urlsplit(s3_url)
        mimetype = magic.from_file(filepath, mime=True)
        
