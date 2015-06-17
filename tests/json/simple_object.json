@@ -1,0 +1,28 @@
+{
+    "versionLabel": "0.0",
+    "changeToken": "1407336249678",
+    "uid": "fb0198b6-ffe6-483a-bb04-ef6f6c3504af",
+    "repository": "default",
+    "title": "Wooden box filled with vegetables, fruits, french fries, pie and shrimp",
+    "lastModified": "2014-08-06T14:44:09.67Z",
+    "facets": [
+        "Picture",
+        "Commentable",
+        "MultiviewPicture",
+        "Versionable",
+        "Publishable",
+        "HasRelatedText",
+        "Folderish",
+        "NotCollectionMember",
+        "Orderable"
+    ],
+    "entity-type": "document",
+    "state": "project",
+    "isCheckedOut": true,
+    "parentRef": "52ed1025-c812-4138-b181-b256339949db",
+    "contextParameters": {
+        "documentURL": "/nuxeo/site/api/v1/id/fb0198b6-ffe6-483a-bb04-ef6f6c3504af"
+    },
+    "path": "/asset-library/UCD/Halberstadt/AlarmtillRGB.tif",
+    "type": "SampleCustomPicture"
+}

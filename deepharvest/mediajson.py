@@ -10,47 +10,81 @@ import urlparse
 import magic
 import logging
 
-FILE_FORMATS = ['image', 'audio', 'video', 'file']
+OBJECT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'structMap']
+COMPONENT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions']
+VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
+S3_URL_FORMAT = "s3://{0}/{1}"
 FILENAME_FORMAT = "{0}-media.json"
 
 class MediaJson():
     def __init__(self):
         pass
  
-    def content_division(self, id, href, label, dimensions, format='image', children={}):
+    def create_media_json(self, object, components=[]):
+        '''
+        Given an object and its components, create a json representation 
+        compliant with these specs: https://github.com/ucldc/ucldc-docs/wiki/media.json
 
-        if format not in FILE_FORMATS:
-            raise ValueError("Invalid format type. Expected one of: %s" % self.file_formats)
+        object is a dict of properties
+        components is a list of dicts of properties
+        '''
+        media_json = {}
 
-        content_division = {}
-        content_division['id'] = id
-        content_division['href'] = href
-        content_division['label'] = label
-        content_division['format'] = format
-        content_division['dimensions'] = dimensions
+        # extract parent level metadata
+        media_json = self._create_parent_json(object)
+        
+        # assemble structMap for any components
+        structmap = [self._create_component_json(c) for c in components]
+        if structmap:
+            media_json['structMap'] = structmap
 
-        if children:
-            # check that this is a valid content division?
-            content_division['structMap'] = children
+        return media_json 
+         
+    def _create_parent_json(self, source_object):
+        ''' 
+           map parent-level metadata for source object to media.json scheme
+           source_object is a dict of properties for the item
+        '''
+        parent_json = {}
+        for key, value in source_object.iteritems():
+            if key in OBJECT_LEVEL_PROPERTIES:
+                if key in VALID_VALUES:
+                    if value not in VALID_VALUES[key]:
+                        raise ValueError("Invalid {}. Expected one of: {}".format(key, value))
+                parent_json[key] = value
+       
+        return parent_json 
 
-        return content_division
+    def _create_component_json(self, source_component):
+        '''
+            map component-level metadata for source object to media.json scheme
+            source_component is a dict of properties for the component
+        '''
+        component_json = {} 
+        for key, value in source_component.iteritems():
+            if key in COMPONENT_LEVEL_PROPERTIES:
+                if key in VALID_VALUES:
+                    if value not in VALID_VALUES[key]:
+                        raise ValueError("Invalid {}. Expected one of: {}".format(key, value))    
+                component_json[key] = value
+      
+        return component_json
 
     def stash_media_json(self, media_dict, bucket, s3_conn=None):
         """ stash <id>-media.json file on S3 """
-        # perform any sort of check that this valid structure? yes, use jsonschema package
         id = media_dict['id']
         if not id:
             raise ValueError("id is required")
 
         tmp_dir = tempfile.mkdtemp()
-        filename = self.filename_format.format(id)
+        filename = FILENAME_FORMAT.format(id)
         tmp_filepath = os.path.join(tmp_dir, filename)
     
         # write json to file 
-        self.create_json_file(media_dict, tmp_filepath)
+        self._create_json_file(media_dict, tmp_filepath)
 
         # stash in s3
-        s3_location = self.s3_stash(tmp_filepath, bucket, filename, s3_conn)
+        s3_location = self._s3_stash(tmp_filepath, bucket, filename, s3_conn)
 
         # delete temp stuff
         os.remove(tmp_filepath)
@@ -58,22 +92,23 @@ class MediaJson():
  
         return s3_location
         
-    def create_json_file(self, content_dict, filepath):
+    def _create_json_file(self, content_dict, filepath):
         """ convert dict to json and write to file """
-        content_json = json.dumps(content_dict)
+        content_json = json.dumps(content_dict, indent=4, separators=(',', ': '))
         with open(filepath, 'wb') as f:
             f.write(content_json)
             f.flush() 
 
-    def s3_stash(self, filepath, bucketpath, obj_key, conn=None):
+    def _s3_stash(self, filepath, bucketpath, obj_key, conn=None):
        """ Stash a file in the named bucket. 
          `conn` is an optional boto.connect_s3()
        """
        bucketpath = bucketpath.strip("/")
        bucketbase = bucketpath.split("/")[0]   
-       s3_url = "s3://{0}/{1}".format(bucketpath, obj_key)
+       s3_url = S3_URL_FORMAT.format(bucketpath, obj_key)
        parts = urlparse.urlsplit(s3_url)
-       mimetype = magic.from_file(filepath, mime=True)
+       #mimetype = magic.from_file(filepath, mime=True)
+       mimetype = 'application/json'
        
        logging.debug('s3_url: {0}'.format(s3_url))
        logging.debug('bucketpath: {0}'.format(bucketpath))

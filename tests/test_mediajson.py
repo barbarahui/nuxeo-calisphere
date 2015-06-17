@@ -1,32 +1,51 @@
 #!/usr/bin/env python
+import os
 import unittest
 from deepharvest import mediajson 
-
-FILE_FORMATS = ['image', 'audio', 'video', 'file']
+import json
 
 class MediaJsonTestCase(unittest.TestCase):
 
-    def testContentDivision(self):
-        ''' Test creation of content division for media.json content '''
-        href = "https://nuxeo.cdlib.org/path/to/image.tiff"
-        id = "4430a193-dba3-4701-8eb7-f53769a77449"
-        label = "A Yellow Bird"
-        dimensions = "1024:1024"
-        dh = mediajson.MediaJson()
-        content_div = dh.content_division(id, href, label, dimensions)
-        self.assertEqual(content_div['href'], href)
-        self.assertEqual(content_div['id'], id)
-        self.assertEqual(content_div['label'], label)
-        self.assertEqual(content_div['dimensions'], dimensions)
-        self.assertEqual(content_div['format'], 'image')
+    def setUp(self):
+        test_json_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'json')
+        self.test_nuxeo_prepped_metadata = os.path.join(test_json_dir, 'nuxeo_prepped_metadata.json')        
+        self.test_nuxeo_invalid_object_format = os.path.join(test_json_dir, 'nuxeo_invalid_format.json')
+        self.test_component_prepped_md = os.path.join(test_json_dir, 'nuxeo_component_md_prepped.json')
+        self.test_no_id = os.path.join(test_json_dir, 'nuxeo_no_id.json')
 
-    def testCreateJsonFile(self):
-        ''' Test creation of media.json file '''
-        pass
+    def test_create_media_json_simple(self):
+        ''' Test creating a json representation of object '''
+        mj = mediajson.MediaJson()
+        nuxeo_md = json.load(open(self.test_nuxeo_prepped_metadata))
+        media_json = mj.create_media_json(nuxeo_md)
+        self.assertNotIn('structMap', media_json)
+        self.assertEqual(media_json['href'], nuxeo_md['href'])
+        self.assertEqual(media_json['format'], nuxeo_md['format'])
+        self.assertEqual(media_json['label'], nuxeo_md['label'])
+        self.assertEqual(media_json['id'], nuxeo_md['id'])
+        self.assertEqual(media_json['dimensions'], nuxeo_md['dimensions'])
+        self.assertNotIn('extraneous', media_json) 
 
-    def testS3Stash(self):
-        ''' Test stashing of media.json file on S3 ''' 
-        pass
+    def test_create_media_json_complex(self):
+        ''' test assembling metadata for a complex object '''
+        parent_md = json.load(open(self.test_nuxeo_prepped_metadata))
+        component_md = json.load(open(self.test_component_prepped_md))
+        mj = mediajson.MediaJson()
+        media_json = mj.create_media_json(parent_md, component_md)
+        self.assertIn('structMap', media_json)
+        self.assertNotIn('extra_field', media_json['structMap'][0])
+        self.assertEqual(media_json['structMap'][0]['href'], component_md[0]['href'])
+        self.assertEqual(media_json['structMap'][0]['format'], component_md[0]['format'])
+        self.assertEqual(media_json['structMap'][0]['label'], component_md[0]['label'])
+        self.assertEqual(media_json['structMap'][0]['id'], component_md[0]['id'])
+        self.assertEqual(media_json['structMap'][0]['dimensions'], component_md[0]['dimensions'])
+
+    def test_invalid_format_error(self):
+        ''' Test creation of media_json with an invalid object format gives error '''
+        mj = mediajson.MediaJson()
+        nuxeo_md = json.load(open(self.test_nuxeo_invalid_object_format))
+        with self.assertRaises(ValueError):
+            media_json = mj.create_media_json(nuxeo_md)
 
 def main():
     unittest.main()
