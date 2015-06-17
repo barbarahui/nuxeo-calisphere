@@ -107,7 +107,8 @@ class MediaJson():
        bucketbase = bucketpath.split("/")[0]   
        s3_url = S3_URL_FORMAT.format(bucketpath, obj_key)
        parts = urlparse.urlsplit(s3_url)
-       mimetype = magic.from_file(filepath, mime=True)
+       #mimetype = magic.from_file(filepath, mime=True)
+       mimetype = 'application/json'
        
        logging.debug('s3_url: {0}'.format(s3_url))
        logging.debug('bucketpath: {0}'.format(bucketpath))
@@ -126,14 +127,12 @@ class MediaJson():
            key = bucket.new_key(parts.path)
            key.set_metadata("Content-Type", mimetype)
            key.set_contents_from_filename(filepath)
-           key.set_acl("public-read")
            logging.info("created {0}".format(s3_url))
        else:
            logging.info("key already existed; updating: {0}".format(s3_url))
            key = bucket.get_key(parts.path)
            key.set_metadata("Content-Type", mimetype)
            key.set_contents_from_filename(filepath) 
-           key.set_acl("public-read")
 
        return s3_url 
 
