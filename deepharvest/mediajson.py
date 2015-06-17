@@ -13,7 +13,7 @@ import logging
 OBJECT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'structMap']
 COMPONENT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions']
 VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
-S3_URL_FORMAT = "https://{0}/{1}"
+S3_URL_FORMAT = "s3://{0}/{1}"
 FILENAME_FORMAT = "{0}-media.json"
 
 class MediaJson():
@@ -55,7 +55,6 @@ class MediaJson():
        
         return parent_json 
 
-
     def _create_component_json(self, source_component):
         '''
             map component-level metadata for source object to media.json scheme
@@ -73,20 +72,19 @@ class MediaJson():
 
     def stash_media_json(self, media_dict, bucket, s3_conn=None):
         """ stash <id>-media.json file on S3 """
-        # perform any sort of check that this valid structure? yes, use jsonschema package
         id = media_dict['id']
         if not id:
             raise ValueError("id is required")
 
         tmp_dir = tempfile.mkdtemp()
-        filename = self.filename_format.format(id)
+        filename = FILENAME_FORMAT.format(id)
         tmp_filepath = os.path.join(tmp_dir, filename)
     
         # write json to file 
-        self.create_json_file(media_dict, tmp_filepath)
+        self._create_json_file(media_dict, tmp_filepath)
 
         # stash in s3
-        s3_location = self.s3_stash(tmp_filepath, bucket, filename, s3_conn)
+        s3_location = self._s3_stash(tmp_filepath, bucket, filename, s3_conn)
 
         # delete temp stuff
         os.remove(tmp_filepath)
@@ -94,14 +92,14 @@ class MediaJson():
  
         return s3_location
         
-    def create_json_file(self, content_dict, filepath):
+    def _create_json_file(self, content_dict, filepath):
         """ convert dict to json and write to file """
-        content_json = json.dumps(content_dict)
+        content_json = json.dumps(content_dict, indent=4, separators=(',', ': '))
         with open(filepath, 'wb') as f:
             f.write(content_json)
             f.flush() 
 
-    def s3_stash(self, filepath, bucketpath, obj_key, conn=None):
+    def _s3_stash(self, filepath, bucketpath, obj_key, conn=None):
        """ Stash a file in the named bucket. 
          `conn` is an optional boto.connect_s3()
        """
@@ -128,12 +126,14 @@ class MediaJson():
            key = bucket.new_key(parts.path)
            key.set_metadata("Content-Type", mimetype)
            key.set_contents_from_filename(filepath)
+           key.set_acl("public-read")
            logging.info("created {0}".format(s3_url))
        else:
            logging.info("key already existed; updating: {0}".format(s3_url))
            key = bucket.get_key(parts.path)
            key.set_metadata("Content-Type", mimetype)
            key.set_contents_from_filename(filepath) 
+           key.set_acl("public-read")
 
        return s3_url 
 

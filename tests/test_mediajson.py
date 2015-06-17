@@ -11,6 +11,7 @@ class MediaJsonTestCase(unittest.TestCase):
         self.test_nuxeo_prepped_metadata = os.path.join(test_json_dir, 'nuxeo_prepped_metadata.json')        
         self.test_nuxeo_invalid_object_format = os.path.join(test_json_dir, 'nuxeo_invalid_format.json')
         self.test_component_prepped_md = os.path.join(test_json_dir, 'nuxeo_component_md_prepped.json')
+        self.test_no_id = os.path.join(test_json_dir, 'nuxeo_no_id.json')
 
     def test_create_media_json_simple(self):
         ''' Test creating a json representation of object '''
@@ -39,20 +40,12 @@ class MediaJsonTestCase(unittest.TestCase):
         self.assertEqual(media_json['structMap'][0]['id'], component_md[0]['id'])
         self.assertEqual(media_json['structMap'][0]['dimensions'], component_md[0]['dimensions'])
 
-        import pprint
-        pp = pprint.PrettyPrinter()
-        pp.pprint(media_json)
-
-
     def test_invalid_format_error(self):
         ''' Test creation of media_json with an invalid object format gives error '''
         mj = mediajson.MediaJson()
         nuxeo_md = json.load(open(self.test_nuxeo_invalid_object_format))
         with self.assertRaises(ValueError):
             media_json = mj.create_media_json(nuxeo_md)
-
-    def test_stash_no_id_error(self):
-        ''' Test stashing media.json file with no id property gives error '''
 
 def main():
     unittest.main()

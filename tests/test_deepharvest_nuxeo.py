@@ -5,9 +5,6 @@ import unittest
 from deepharvest import deepharvest_nuxeo
 import ast
 import json
-import pprint
-
-pp = pprint.PrettyPrinter()
 
 class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
 
@@ -16,7 +13,7 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.path = "asset-library/UCD/Halberstadt"
         self.s3_mediajson = "static.ucldc.cdlib.org/media_json"
         self.s3_refimages = "ucldc-nuxeo-ref-images"
-        self.dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, self.s3_refimages)
+        self.dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson)
 
         test_json_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'json')
         self.test_simple_object = os.path.join(test_json_dir, 'simple_object.json')
@@ -26,10 +23,9 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
  
     def test_init(self):
         ''' test initialization of DeepHarvestNuxeo object '''
-        dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, self.s3_refimages)
+        dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson)
         self.assertEqual(dh.path, self.path)
         self.assertEqual(dh.s3_bucket_mediajson, self.s3_mediajson)
-        self.assertEqual(dh.s3_bucket_ref_img, self.s3_refimages)
 
     def test_fetch_objects(self):
         ''' test fetching of Nuxeo objects at a given path ''' 
@@ -47,11 +43,6 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         obj = json.load(open(self.test_complex_object_depth_one))
         components = self.dh.fetch_components(obj) # mock so we don't actually go over network
         self.assertEqual(len(components), 2) # FIXME bad test!
-        #md = []
-        #for c in components:
-        #    md.append(self.dh.get_component_metadata(c))
-        #jsonified = json.dumps(md, indent=4)
-        #print jsonified
 
     def test_fetch_components_depth_several(self):
         ''' test getting components for object with nested depth > 1 '''
@@ -77,39 +68,12 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.assertEqual(metadata['id'], u'510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9')
         self.assertEqual(metadata['href'], u'https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9/file:content/UCM_LI_2003_063B_K.tif')
         self.assertEqual(metadata['format'], 'image')
-        #dh = deepharvest_nuxeo.DeepHarvestNuxeo('asset-library/UCM/LIJA-metadata-completed/LIJA2', self.s3_mediajson, self.s3_refimages)
-        #objects = dh.fetch_objects()
-        #for object in objects:
-        #    if object['path'] == '/asset-library/UCM/LIJA-metadata-completed/LIJA2/UCM_LI_1997_017A,B':
-        #        jsonified = json.dumps(object, indent=4)
-        #        print jsonified                
-
-    # test getting object type
 
     # test video
 
     # test audio
 
     # test complex multi-type
-
-    def temp_code(self):
-        pass
-        #dh = deepharvest_nuxeo.DeepHarvestNuxeo('asset-library/UCM/NightingaleDiaries', self.s3_mediajson, self.s3_refimages)
-        #dh = deepharvest_nuxeo.DeepHarvestNuxeo('asset-library/UCM/LIJA-metadata-completed/LIJA2', self.s3_mediajson, self.s3_refimages)
-        #objects = dh.fetch_objects()
-        #for object in objects:
-        #    if object['path'] == '/asset-library/UCM/LIJA-metadata-completed/LIJA2/UCM_LI_1997_017A,B':
-        #        print object
-        #print objects
-
-        #dh = deepharvest_nuxeo.DeepHarvestNuxeo('asset-library/UCM/LIJA-metadata-completed/LIJA', self.s3_mediajson, self.s3_refimages)
-        #objects = dh.fetch_objects()
-        #for object in objects:
-        #    if object['path'] == u'/asset-library/UCM/LIJA-metadata-completed/LIJA/UCM_LI_2003_063':
-        #        jsonified = json.dumps(object, indent=4)
-        #        print jsonified
-        #f = open(self.test_complex_object_depth_one)
-        #complex_obj = ast.literal_eval(f)
 
 if __name__ == '__main__':
     main()

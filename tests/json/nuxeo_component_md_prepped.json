@@ -4,12 +4,14 @@
         "href": "https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/03218032-f131-436e-beba-312ef2c275c4/file:content/UCM_LI_2003_063A_K.tif",
         "id": "03218032-f131-436e-beba-312ef2c275c4",
         "label": "UCM_LI_2003_063A_K.tif",
+        "dimensions": "1024:1024",
         "extra_field": "test extra data"
     },
     {
         "format": "image",
         "href": "https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9/file:content/UCM_LI_2003_063B_K.tif",
         "id": "510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9",
-        "label": "UCM_LI_2003_063B_K.tif"
+        "label": "UCM_LI_2003_063B_K.tif",
+        "dimensions": "1024:1024"
     }
 ]

@@ -20,13 +20,13 @@ class DeepHarvestNuxeo():
     ''' 
     deep harvest of nuxeo content for publication in Calisphere
     '''
-    def __init__(self, path, s3_bucket_mediajson, s3_bucket_ref_img):
+    def __init__(self, path, s3_bucket_mediajson, pynuxrc='~/.pynuxrc-prod'):
         self.path = path
         self.s3_bucket_mediajson = s3_bucket_mediajson
-        self.s3_bucket_ref_img = s3_bucket_ref_img 
+        self.pynuxrc = pynuxrc
         # set up logging
         self.mj = mediajson.MediaJson()
-        self.nx = utils.Nuxeo(rcfile='~/.pynuxrc-prod') # FIXME
+        self.nx = utils.Nuxeo(rcfile=self.pynuxrc) # FIXME
 
     def fetch_objects(self):
         ''' fetch Nuxeo objects at a given path '''
@@ -84,16 +84,22 @@ class DeepHarvestNuxeo():
             raise ValueError("Invalid type: {0} for: {1} Expected one of: {2}".format(nuxeo_type, self.path, TYPE_MAP.keys()))        
         return calisphere_type 
 
-    def assemble_object_metadata(self, parent, components=None):
-        ''' 
-        given parent and component metadata, assemble one dict for the
-        object to pass to mediajson, including structMap
-        '''
-        assembled = parent
-        if components:
-            assembled['structMap'] = components
- 
-        return assembled        
+def main(argv=None):
+    ''' run deep harvest for Nuxeo collection '''
+    parser = argparse.ArgumentParser(description='Deep harvest Nuxeo content at a given path')
+    parser.add_argument("path", help="Nuxeo document path")
+    parser.add_argument("bucket", help="S3 bucket where media.json files will be stashed")
+    parser.add_argument("--pynuxrc", help="rc file for use by pynux")
+    if argv is None:
+        argv = parser.parse_args()
+
+    dh = DeepHarvestNuxeo(argv.path, argv.bucket)
+    objects = dh.fetch_objects()
+    for obj in objects:
+        parent_md = dh.get_parent_metadata(obj) 
+        component_md = [dh.get_component_metadata(c) for c in dh.fetch_components(obj)]
+        media_json = dh.mj.create_media_json(parent_md, component_md)
+        print dh.mj.stash_media_json(media_json, argv.bucket)
 
 if __name__ == "__main__":
     sys.exit(main())
