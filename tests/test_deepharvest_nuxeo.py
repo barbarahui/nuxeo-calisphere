@@ -13,7 +13,8 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.path = "asset-library/UCD/Halberstadt"
         self.s3_mediajson = "static.ucldc.cdlib.org/media_json"
         self.s3_refimages = "ucldc-nuxeo-ref-images"
-        self.dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson)
+        self.pynuxrc = "~/.pynuxrc-prod"
+        self.dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, self.pynuxrc)
 
         test_json_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'json')
         self.test_simple_object = os.path.join(test_json_dir, 'simple_object.json')
@@ -23,7 +24,7 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
  
     def test_init(self):
         ''' test initialization of DeepHarvestNuxeo object '''
-        dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson)
+        dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, self.pynuxrc)
         self.assertEqual(dh.path, self.path)
         self.assertEqual(dh.s3_bucket_mediajson, self.s3_mediajson)
 
