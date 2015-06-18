@@ -20,7 +20,7 @@ class DeepHarvestNuxeo():
     ''' 
     deep harvest of nuxeo content for publication in Calisphere
     '''
-    def __init__(self, path, s3_bucket_mediajson, pynuxrc='~/.pynuxrc-prod'):
+    def __init__(self, path, s3_bucket_mediajson, pynuxrc):
         self.path = path
         self.s3_bucket_mediajson = s3_bucket_mediajson
         self.pynuxrc = pynuxrc
@@ -89,11 +89,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Deep harvest Nuxeo content at a given path')
     parser.add_argument("path", help="Nuxeo document path")
     parser.add_argument("bucket", help="S3 bucket where media.json files will be stashed")
-    parser.add_argument("--pynuxrc", help="rc file for use by pynux")
+    parser.add_argument("--pynuxrc", default='~/.pynuxrc-prod', help="rc file for use by pynux")
     if argv is None:
         argv = parser.parse_args()
 
-    dh = DeepHarvestNuxeo(argv.path, argv.bucket)
+    dh = DeepHarvestNuxeo(argv.path, argv.bucket, argv.pynuxrc)
     objects = dh.fetch_objects()
     for obj in objects:
         parent_md = dh.get_parent_metadata(obj) 
