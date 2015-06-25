@@ -4,3 +4,4 @@ dist/
 *.swp
 *.log
 deepharvest/deepharvestenv/
+build/

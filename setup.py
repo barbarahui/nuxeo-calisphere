@@ -22,5 +22,6 @@ setup(
         'pynux',
         'python-magic'
     ],
+    packages=['deepharvest'],
     test_suite='tests'
 )
