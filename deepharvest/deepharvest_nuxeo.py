@@ -30,9 +30,33 @@ class DeepHarvestNuxeo():
 
     def fetch_objects(self):
         ''' fetch Nuxeo objects at a given path '''
-        objects = self.nx.children(self.path)
+        children = self.nx.children(self.path)
+        objects = []
+        for child in children:
+            objects.extend(self.fetch_harvestable(child))
+
         return objects
         
+    def fetch_harvestable(self, start_obj, depth=-1):
+        ''' 
+            if the given Nuxeo object is harvestable, return it.
+            if it's an organizational folder, search recursively inside it for all harvestable objects 
+            (not components -- just top-level objects)
+        '''
+        harvestable = []
+
+        def recurse(current, depth):
+            if current['type'] != 'Organization':
+                harvestable.append(current)
+            if depth != 0:
+                if current['type'] == 'Organization':
+                    for child in self.nx.children(current['path']):
+                        recurse(child, depth-1)
+
+        recurse(start_obj, depth)
+
+        return harvestable
+
     def fetch_components(self, start_obj, depth=-1):
         ''' fetch any component objects '''
         components = []

@@ -1,0 +1,21 @@
+{
+    "changeToken": "1431464369000",
+    "contextParameters": {
+        "documentURL": "/nuxeo/site/api/v1/id/8c387363-7770-43af-9e4a-2e668b9bd579"
+    },
+    "entity-type": "document",
+    "facets": [
+        "Folderish",
+        "NotCollectionMember"
+    ],
+    "isCheckedOut": true,
+    "lastModified": "2015-05-12T20:59:29.00Z",
+    "parentRef": "20b32cbf-e333-41e7-a77d-fbe4226bd9be",
+    "path": "/asset-library/UCR/SabinoOsuna/Box 13",
+    "repository": "default",
+    "state": "project",
+    "title": "Box 13",
+    "type": "Organization",
+    "uid": "8c387363-7770-43af-9e4a-2e668b9bd579",
+    "versionLabel": "0.0"
+}

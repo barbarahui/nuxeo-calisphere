@@ -1,0 +1,21 @@
+{
+    "changeToken": "1432923408153",
+    "contextParameters": {
+        "documentURL": "/nuxeo/site/api/v1/id/0b775845-30fb-4667-af34-cf59344fbe75"
+    },
+    "entity-type": "document",
+    "facets": [
+        "Folderish",
+        "NotCollectionMember"
+    ],
+    "isCheckedOut": true,
+    "lastModified": "2015-05-29T18:16:48.15Z",
+    "parentRef": "afa37e7d-051f-4fbc-a5b4-e83aa6171aef",
+    "path": "/asset-library/UCM/Ramicova/Aida",
+    "repository": "default",
+    "state": "project",
+    "title": "Aida",
+    "type": "Organization",
+    "uid": "0b775845-30fb-4667-af34-cf59344fbe75",
+    "versionLabel": "0.1+"
+}
