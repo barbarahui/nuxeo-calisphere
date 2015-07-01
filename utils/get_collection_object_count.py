@@ -16,8 +16,16 @@ def main(argv=None):
     dh = DeepHarvestNuxeo(argv.path, 'barbarahui_test_bucket', argv.pynuxrc)
     print "about to fetch objects for path {}".format(dh.path)
     objects = dh.fetch_objects()
-    print "finished" 
-    print "len(objects): {}".format(len(objects))
+    object_count = len(objects)
+    print "finished fetching objects. {} found".format(object_count)
+
+    print "about to iterate through objects and get components"
+    component_count = 0
+    for obj in objects:
+        components = dh.fetch_components(obj)
+        component_count = component_count + len(components)
+    print "finished fetching components. {} found".format(component_count)
+    print "Grand Total: {}".format(object_count + component_count)
 
 if __name__ == "__main__":
     sys.exit(main())
