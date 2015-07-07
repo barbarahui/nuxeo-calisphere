@@ -1,0 +1,30 @@
+{
+    "versionLabel": "0.0",
+    "changeToken": "1418835365143",
+    "uid": "5ed6d575-c820-49cc-9968-49769ca2ff42",
+    "repository": "default",
+    "title": "Page [1]",
+    "lastModified": "2014-12-17T16:56:05.14Z",
+    "facets": [
+        "Picture",
+        "Commentable",
+        "MultiviewPicture",
+        "Versionable",
+        "Publishable",
+        "DocumentsSizeStatistics",
+        "HasRelatedText",
+        "Thumbnail",
+        "Folderish",
+        "NotCollectionMember",
+        "Orderable"
+    ],
+    "entity-type": "document",
+    "state": "project",
+    "isCheckedOut": true,
+    "parentRef": "08999aaf-03f9-4054-943e-24f66b2ac9fe",
+    "contextParameters": {
+        "documentURL": "/nuxeo/site/api/v1/id/5ed6d575-c820-49cc-9968-49769ca2ff42"
+    },
+    "path": "/asset-library/UCM/NightingaleDiaries/1865/ntgl_1865_0014.tif",
+    "type": "SampleCustomPicture"
+}

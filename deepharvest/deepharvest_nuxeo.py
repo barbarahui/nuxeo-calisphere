@@ -16,6 +16,8 @@ TYPE_MAP = {"SampleCustomPicture": "image",
            "Organization": "file"
            }
 
+UCLDC_SCHEMA_MAP = {'ucldc_schema:transcription': 'transcription'}
+
 class DeepHarvestNuxeo():
     ''' 
     deep harvest of nuxeo content for publication in Calisphere
@@ -87,10 +89,23 @@ class DeepHarvestNuxeo():
         metadata = {}
         metadata['label'] = obj['title']
         metadata['id'] = obj['uid']
+
+        ucldc_md = self.get_ucldc_schema_properties(self.nx.get_metadata(uid=obj['uid']))
+        for key, value in ucldc_md.iteritems():
+            metadata[key] = value
+
         metadata['href'] = self.get_object_download_url(obj['uid'], obj['path'])
         metadata['format'] = self.get_calisphere_object_type(obj['type'])
-
+        
         return metadata
+
+    def get_ucldc_schema_properties(self, metadata):
+        ''' given the full metadata for an object, extract selected values '''
+        properties = {} 
+        for key, value in UCLDC_SCHEMA_MAP.iteritems():
+            properties[value] = metadata['properties'][key]
+ 
+        return properties
 
     def get_object_download_url(self, nuxeo_id, nuxeo_path):
         """ Get object file download URL. We should really put this logic in pynux """

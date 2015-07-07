@@ -11,7 +11,7 @@ import magic
 import logging
 
 OBJECT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'structMap']
-COMPONENT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions']
+COMPONENT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'transcription']
 VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
 S3_URL_FORMAT = "s3://{0}/{1}"
 FILENAME_FORMAT = "{0}-media.json"
@@ -94,7 +94,7 @@ class MediaJson():
         
     def _create_json_file(self, content_dict, filepath):
         """ convert dict to json and write to file """
-        content_json = json.dumps(content_dict, indent=4, separators=(',', ': '))
+        content_json = json.dumps(content_dict, indent=4, separators=(',', ': '), sort_keys=True)
         with open(filepath, 'wb') as f:
             f.write(content_json)
             f.flush() 

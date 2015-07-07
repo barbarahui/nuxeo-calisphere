@@ -21,6 +21,8 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.test_complex_object_depth_one = os.path.join(test_json_dir, 'complex_object_one_deep.json')
         self.test_complex_object_depth_two = os.path.join(test_json_dir, 'complex_object_two_deep.json')
         self.test_component_object = os.path.join(test_json_dir, 'component_object.json')
+        self.test_component_with_transcript = os.path.join(test_json_dir, 'component_object_with_transcript.json')
+        self.test_nuxeo_full_md_transcript = os.path.join(test_json_dir, 'nuxeo_full_metadata_transcript.json')
         self.test_nuxeo_full_metadata = os.path.join(test_json_dir, 'nuxeo_full_metadata.json')
         self.test_nuxeo_organizational_object = os.path.join(test_json_dir, 'nuxeo_organizational_object.json')
         self.test_nuxeo_empty_folder_object = os.path.join(test_json_dir, 'nuxeo_empty_folder_object.json')
@@ -79,6 +81,18 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.assertEqual(metadata['href'], u'https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9/file:content/UCM_LI_2003_063B_K.tif')
         self.assertEqual(metadata['format'], 'image')
 
+    def test_get_ucldc_schema_properties(self):
+        ''' test getting ucldc_schema metadata for object '''
+        obj = json.load(open(self.test_nuxeo_full_md_transcript))
+        ucldc_md = self.dh.get_ucldc_schema_properties(obj)
+        self.assertEqual(ucldc_md['transcription'], obj['properties']['ucldc_schema:transcription'])
+
+    def test_get_component_metadata_with_transcript(self):
+        ''' test getting metadata for a component that has a transcription '''
+        obj = json.load(open(self.test_component_with_transcript))
+        metadata = self.dh.get_component_metadata(obj)
+        self.assertEqual(metadata['transcription'], u'[written above date]:Stanton Hospital, Washington. City D.C.\n\nThe old year has gone, gone forever with all its joys, sorrows, and cares, a New Year is just began, our hearts beat high with thankfulness and of hope for the future, and we begin the New Year with a merry greeting to all, especially to our absent comrads in the field, may the God of Battles protect all of them and ere another New Years day resore them again to our waiting anxious friends. - a greeting to our bereaved ones with tender sympathy. Those who mourn the loss of these gone forth-to-battle never to return, - to our country in I all levels of Freedom a greeting  with the wish that soon the Angel of Peace will find its wings and rush over our beloved country. This had been a cold but beautiful day in the morning was very busy on office work. recieved a letter from [illegible], answered the same, in the evening. also wrote short letter to my cousin with the mount pleasant hospital, in the afternoon was visited by my friend Mr. Mom and two members of my Regt. was not out of the hospital today. sent this morning Chronicle to Aunt Mercy.')
+
     def test_fetch_harvestable_not_nested(self):
         ''' test that a non-nested object is identified as harvestable '''
         non_nested_obj = json.load(open(self.test_simple_object))
@@ -98,14 +112,6 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         empty_folder_obj = json.load(open(self.test_nuxeo_empty_folder_object))
         harvestable = self.dh.fetch_harvestable(empty_folder_obj)
         self.assertEqual(len(harvestable), 0)
-
-    # test getting Calisphere object type
-
-    # test video
-
-    # test audio
-
-    # test complex multi-type
 
 if __name__ == '__main__':
     main()

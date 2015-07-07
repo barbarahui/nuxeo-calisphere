@@ -11,6 +11,7 @@ class MediaJsonTestCase(unittest.TestCase):
         self.test_nuxeo_prepped_metadata = os.path.join(test_json_dir, 'nuxeo_prepped_metadata.json')        
         self.test_nuxeo_invalid_object_format = os.path.join(test_json_dir, 'nuxeo_invalid_format.json')
         self.test_component_prepped_md = os.path.join(test_json_dir, 'nuxeo_component_md_prepped.json')
+        self.test_component_prepped_md_w_transcript = os.path.join(test_json_dir, 'nuxeo_component_md_prepped_w_transcript.json')
         self.test_no_id = os.path.join(test_json_dir, 'nuxeo_no_id.json')
 
     def test_create_media_json_simple(self):
@@ -46,6 +47,14 @@ class MediaJsonTestCase(unittest.TestCase):
         nuxeo_md = json.load(open(self.test_nuxeo_invalid_object_format))
         with self.assertRaises(ValueError):
             media_json = mj.create_media_json(nuxeo_md)
+
+    def test_create_media_json_with_transcript(self):
+        ''' Test creation of media_json for complex object with transcriptions at component level '''
+        parent_md = json.load(open(self.test_nuxeo_prepped_metadata))
+        component_md = json.load(open(self.test_component_prepped_md_w_transcript))
+        mj = mediajson.MediaJson()
+        media_json = mj.create_media_json(parent_md, component_md)
+        self.assertEqual(media_json['structMap'][0]['transcription'], component_md[0]['transcription']) 
 
 def main():
     unittest.main()
