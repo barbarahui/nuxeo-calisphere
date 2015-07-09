@@ -13,8 +13,8 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.path = "asset-library/UCD/Halberstadt"
         self.s3_mediajson = "static.ucldc.cdlib.org/media_json"
         self.s3_refimages = "ucldc-nuxeo-ref-images"
-        self.pynuxrc = "~/.pynuxrc-prod"
-        self.dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, self.pynuxrc)
+        self.pynuxrc = "~/.pynuxrc"
+        self.dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, pynuxrc=self.pynuxrc)
 
         test_json_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'json')
         self.test_simple_object = os.path.join(test_json_dir, 'simple_object.json')
@@ -26,10 +26,11 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.test_nuxeo_full_metadata = os.path.join(test_json_dir, 'nuxeo_full_metadata.json')
         self.test_nuxeo_organizational_object = os.path.join(test_json_dir, 'nuxeo_organizational_object.json')
         self.test_nuxeo_empty_folder_object = os.path.join(test_json_dir, 'nuxeo_empty_folder_object.json')
+        self.test_nuxeo_object_no_file = os.path.join(test_json_dir, 'nuxeo_object_no_file.json')
 
     def test_init(self):
         ''' test initialization of DeepHarvestNuxeo object '''
-        dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, self.pynuxrc)
+        dh = deepharvest_nuxeo.DeepHarvestNuxeo(self.path, self.s3_mediajson, pynuxrc=self.pynuxrc)
         self.assertEqual(dh.path, self.path)
         self.assertEqual(dh.s3_bucket_mediajson, self.s3_mediajson)
 
@@ -40,7 +41,7 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
    
     def test_fetch_objects_nested(self):
         ''' test fetching of Nuxeo objects for a collection that has nested folders '''
-        dh = deepharvest_nuxeo.DeepHarvestNuxeo('/asset-library/UCR/SabinoOsuna', self.s3_mediajson, self.pynuxrc)
+        dh = deepharvest_nuxeo.DeepHarvestNuxeo('/asset-library/UCR/SabinoOsuna', self.s3_mediajson, pynuxrc=self.pynuxrc)
         objects = dh.fetch_objects()
         self.assertEqual(sum(1 for ob in objects), 427) # FIXME bad test! # of objects might change...
 
