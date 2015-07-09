@@ -8,6 +8,8 @@ from pynux import utils
 import logging
 import urlparse
 
+REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file'
+
 # type Organization should actually be type CustomFile. Adding workaround for now.
 TYPE_MAP = {"SampleCustomPicture": "image",
            "CustomAudio": "audio",
@@ -24,6 +26,7 @@ class DeepHarvestNuxeo():
     '''
     def __init__(self, path, s3_bucket_mediajson, **pynux_conf):
 
+        # get configuration and initialize pynux.utils.Nuxeo
         if 'pynuxrc' in pynux_conf:
             pynuxrc = pynux_conf['pynuxrc']
             self.nx = utils.Nuxeo(rcfile=pynuxrc)
@@ -33,12 +36,13 @@ class DeepHarvestNuxeo():
         else:
             self.nx = utils.Nuxeo(conf={}) 
 
+        # override X-NXDocumentProperties provided in conf
+        REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file'
+        self.nx.conf['X-NXDocumentProperties'] = REQUIRED_DOC_PROPS
+
         self.path = path
         self.s3_bucket_mediajson = s3_bucket_mediajson
-        #self.pynuxrc = pynuxrc
-        # set up logging
         self.mj = mediajson.MediaJson()
-        #self.nx = utils.Nuxeo(rcfile=self.pynuxrc) # FIXME
 
     def fetch_objects(self):
         ''' fetch Nuxeo objects at a given path '''
