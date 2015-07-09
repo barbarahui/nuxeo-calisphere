@@ -22,7 +22,7 @@ class DeepHarvestNuxeo():
     ''' 
     deep harvest of nuxeo content for publication in Calisphere
     '''
-    def __init__(self, path, s3_bucket_mediajson, pynuxrc):
+    def __init__(self, path, s3_bucket_mediajson, pynuxrc='~/.pynuxrc-prod'):
         self.path = path
         self.s3_bucket_mediajson = s3_bucket_mediajson
         self.pynuxrc = pynuxrc
@@ -108,7 +108,7 @@ class DeepHarvestNuxeo():
         return properties
 
     def get_object_download_url(self, nuxeo_id, nuxeo_path):
-        """ Get object file download URL. We should really put this logic in pynux """
+        """ Get object file download URL. """
         parts = urlparse.urlsplit(self.nx.conf["api"])
         path_base = parts.path.split('/')[0]
         filename = nuxeo_path.split('/')[-1]
