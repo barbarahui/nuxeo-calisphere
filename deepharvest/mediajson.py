@@ -70,14 +70,10 @@ class MediaJson():
       
         return component_json
 
-    def stash_media_json(self, media_dict, bucket, s3_conn=None):
+    def stash_media_json(self, uid, media_dict, bucket, s3_conn=None):
         """ stash <id>-media.json file on S3 """
-        id = media_dict['id']
-        if not id:
-            raise ValueError("id is required")
-
         tmp_dir = tempfile.mkdtemp()
-        filename = FILENAME_FORMAT.format(id)
+        filename = FILENAME_FORMAT.format(uid)
         tmp_filepath = os.path.join(tmp_dir, filename)
     
         # write json to file 

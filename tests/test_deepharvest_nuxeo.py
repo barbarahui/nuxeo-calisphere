@@ -74,26 +74,11 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.assertEqual(metadata['format'], 'image')
 
     def test_get_metadata_no_file(self):
-        ''' test getting the metadata for an object with no file '''
-        '''
+        ''' test that getting the metadata for an object with no file results in empty id and format '''
         obj = json.load(open(self.test_nuxeo_object_no_file))
         metadata = self.dh.get_parent_metadata(obj)
         self.assertNotIn('id', metadata)
         self.assertNotIn('format', metadata)
-        '''
-
-        dh = deepharvest_nuxeo.DeepHarvestNuxeo('asset-library/UCM/Merced Army Flying Schoo.1411149779533/Merced Army Flying Schoo', self.s3_mediajson, pynuxrc=self.pynuxrc)
-        import pprint
-        pp = pprint.PrettyPrinter()
-        pp.pprint(dh.nx.get_metadata(path=dh.path))
-
-        '''
-        dh = deepharvest_nuxeo.DeepHarvestNuxeo('/asset-library/UCM/McLean', self.s3_mediajson, self.pynuxrc)
-        obj = dh.fetch_objects()
-        for ob in obj:
-            if ob['uid'] == 'fc7660de-a987-4a27-a22f-e6ec8ee381d2':
-                print json.dumps(ob, indent=4, sort_keys=True)
-        '''
 
     def test_get_component_metadata(self):
         ''' test getting metadata for a component of a complex object '''
