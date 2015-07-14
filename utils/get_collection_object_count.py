@@ -13,7 +13,7 @@ def main(argv=None):
     if argv is None:
         argv = parser.parse_args()
     
-    dh = DeepHarvestNuxeo(argv.path, 'barbarahui_test_bucket', argv.pynuxrc)
+    dh = DeepHarvestNuxeo(argv.path, '', pynuxrc=argv.pynuxrc)
     print "about to fetch objects for path {}".format(dh.path)
     objects = dh.fetch_objects()
     object_count = len(objects)
