@@ -73,6 +73,13 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.assertEqual(metadata['href'], u'https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/fb0198b6-ffe6-483a-bb04-ef6f6c3504af/file:content/AlarmtillRGB.tif')
         self.assertEqual(metadata['format'], 'image')
 
+    def test_get_metadata_no_file(self):
+        ''' test that getting the metadata for an object with no file results in empty id and format '''
+        obj = json.load(open(self.test_nuxeo_object_no_file))
+        metadata = self.dh.get_parent_metadata(obj)
+        self.assertNotIn('id', metadata)
+        self.assertNotIn('format', metadata)
+
     def test_get_component_metadata(self):
         ''' test getting metadata for a component of a complex object '''
         component_obj = json.load(open(self.test_component_object))

@@ -8,6 +8,8 @@ from pynux import utils
 import logging
 import urlparse
 
+REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file'
+
 # type Organization should actually be type CustomFile. Adding workaround for now.
 TYPE_MAP = {"SampleCustomPicture": "image",
            "CustomAudio": "audio",
@@ -23,6 +25,7 @@ class DeepHarvestNuxeo():
     deep harvest of nuxeo content for publication in Calisphere
     '''
     def __init__(self, path, s3_bucket_mediajson, **pynux_conf):
+        # get configuration and initialize pynux.utils.Nuxeo
         self.nx = None
         if 'pynuxrc' in pynux_conf:
             pynuxrc = pynux_conf['pynuxrc']
@@ -35,10 +38,7 @@ class DeepHarvestNuxeo():
 
         self.path = path
         self.s3_bucket_mediajson = s3_bucket_mediajson
-        #self.pynuxrc = pynuxrc
-        # set up logging
         self.mj = mediajson.MediaJson()
-        #self.nx = utils.Nuxeo(rcfile=self.pynuxrc) # FIXME
 
     def fetch_objects(self):
         ''' fetch Nuxeo objects at a given path '''
@@ -88,26 +88,43 @@ class DeepHarvestNuxeo():
         ''' assemble top-level (parent) object metadata '''
         metadata = {}
         metadata['label'] = obj['title']
-        metadata['id'] = obj['uid']
-        metadata['href'] = self.get_object_download_url(obj['uid'], obj['path'])
-        metadata['format'] = self.get_calisphere_object_type(obj['type'])
+
+        # only provide id, href, format if Nuxeo Document has file attached
+        full_metadata = self.nx.get_metadata(uid=obj['uid'])   
+        if self.has_file(full_metadata):
+            metadata['id'] = obj['uid']
+            metadata['href'] = self.get_object_download_url(full_metadata)
+            metadata['format'] = self.get_calisphere_object_type(obj['type'])
 
         return metadata 
 
     def get_component_metadata(self, obj):
         ''' assemble component object metadata ''' 
         metadata = {}
+        full_metadata = self.nx.get_metadata(uid=obj['uid'])
         metadata['label'] = obj['title']
         metadata['id'] = obj['uid']
+        metadata['href'] = self.get_object_download_url(full_metadata)
+        metadata['format'] = self.get_calisphere_object_type(obj['type'])
 
-        ucldc_md = self.get_ucldc_schema_properties(self.nx.get_metadata(uid=obj['uid']))
+        # extract additional  ucldc metadata from 'properties' element
+        ucldc_md = self.get_ucldc_schema_properties(full_metadata)
         for key, value in ucldc_md.iteritems():
             metadata[key] = value
 
-        metadata['href'] = self.get_object_download_url(obj['uid'], obj['path'])
-        metadata['format'] = self.get_calisphere_object_type(obj['type'])
-        
         return metadata
+
+    def has_file(self, metadata):
+        ''' given the full metadata for an object, determine whether or not nuxeo document has file content '''
+        try:
+            file_content = metadata['properties']['file:content']
+        except KeyError:
+            raise KeyError("Nuxeo object metadata does not contain 'properties/file:content' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'file'")
+
+        if file_content is None:
+            return False
+        else:
+            return True
 
     def get_ucldc_schema_properties(self, metadata):
         ''' given the full metadata for an object, extract selected values '''
@@ -117,7 +134,21 @@ class DeepHarvestNuxeo():
  
         return properties
 
-    def get_object_download_url(self, nuxeo_id, nuxeo_path):
+    
+    def get_object_download_url(self, metadata):
+        ''' given the full metadata for an object, get file download url '''
+        try:
+            file_content = metadata['properties']['file:content']
+        except KeyError:
+            raise KeyError("Nuxeo object metadata does not contain 'properties/file:content' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'file'")
+
+        if file_content is None:
+            return None
+        else:
+            url = file_content['data']
+            return url
+
+    def get_object_download_urlOLD(self, nuxeo_id, nuxeo_path):
         """ Get object file download URL. """
         parts = urlparse.urlsplit(self.nx.conf["api"])
         path_base = parts.path.split('/')[0]
@@ -148,7 +179,7 @@ def main(argv=None):
         parent_md = dh.get_parent_metadata(obj) 
         component_md = [dh.get_component_metadata(c) for c in dh.fetch_components(obj)]
         media_json = dh.mj.create_media_json(parent_md, component_md)
-        print dh.mj.stash_media_json(media_json, argv.bucket)
+        print dh.mj.stash_media_json(obj['uid'], media_json, argv.bucket)
 
 if __name__ == "__main__":
     sys.exit(main())

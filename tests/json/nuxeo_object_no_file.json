@@ -1,0 +1,29 @@
+{
+    "changeToken": "1432922854273",
+    "contextParameters": {
+        "documentURL": "/nuxeo/site/api/v1/id/fc7660de-a987-4a27-a22f-e6ec8ee381d2"
+    },
+    "entity-type": "document",
+    "facets": [
+        "Picture",
+        "Commentable",
+        "MultiviewPicture",
+        "Versionable",
+        "Publishable",
+        "DocumentsSizeStatistics",
+        "HasRelatedText",
+        "Folderish",
+        "NotCollectionMember",
+        "Orderable"
+    ],
+    "isCheckedOut": true,
+    "lastModified": "2015-05-29T18:07:34.27Z",
+    "parentRef": "b526dda1-6b6b-49cd-b151-b285475bb405",
+    "path": "/asset-library/UCM/McLean/ucm_mclean_021",
+    "repository": "default",
+    "state": "project",
+    "title": "Alice Chase Dudley's Diary (April 17th, 1874 - January 7th,1877)\r\n",
+    "type": "SampleCustomPicture",
+    "uid": "fc7660de-a987-4a27-a22f-e6ec8ee381d2",
+    "versionLabel": "0.1+"
+}
