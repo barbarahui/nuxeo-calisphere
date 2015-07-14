@@ -23,7 +23,7 @@ class DeepHarvestNuxeo():
     deep harvest of nuxeo content for publication in Calisphere
     '''
     def __init__(self, path, s3_bucket_mediajson, **pynux_conf):
-
+        self.nx = None
         if 'pynuxrc' in pynux_conf:
             pynuxrc = pynux_conf['pynuxrc']
             self.nx = utils.Nuxeo(rcfile=pynuxrc)
