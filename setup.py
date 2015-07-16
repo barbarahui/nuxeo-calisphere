@@ -22,6 +22,6 @@ setup(
         'pynux',
         'python-magic',
     ],
-    packages=['deepharvest'],
+    packages=['deepharvest', 's3stash'],
     test_suite='tests'
 )
