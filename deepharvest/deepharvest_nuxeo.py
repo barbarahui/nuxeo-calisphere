@@ -20,7 +20,7 @@ TYPE_MAP = {"SampleCustomPicture": "image",
 
 UCLDC_SCHEMA_MAP = {'ucldc_schema:transcription': 'transcription'}
 
-class DeepHarvestNuxeo():
+class DeepHarvestNuxeo(object):
     ''' 
     deep harvest of nuxeo content for publication in Calisphere
     '''
@@ -130,7 +130,8 @@ class DeepHarvestNuxeo():
         ''' given the full metadata for an object, extract selected values '''
         properties = {} 
         for key, value in UCLDC_SCHEMA_MAP.iteritems():
-            properties[value] = metadata['properties'][key]
+            if metadata['properties'][key]:
+                properties[value] = metadata['properties'][key]
  
         return properties
 
@@ -148,14 +149,16 @@ class DeepHarvestNuxeo():
             url = file_content['data']
             return url
 
-    def get_object_download_urlOLD(self, nuxeo_id, nuxeo_path):
-        """ Get object file download URL. """
-        parts = urlparse.urlsplit(self.nx.conf["api"])
-        path_base = parts.path.split('/')[0]
-        filename = nuxeo_path.split('/')[-1]
-        url = u'{0}://{1}/nuxeo/nxbigfile/default/{2}/file:content/{3}'.format(parts.scheme, parts.netloc, nuxeo_id, filename)
-
-        return url
+    def get_mimetype(self, metadata):
+        ''' get the mimetype for a nuxeo content file '''
+        try:
+            mimetype = metadata['properties']['file:content']['mime-type']
+        except TypeError:
+            mimetype = None
+        except KeyError:
+            raise KeyError("Nuxeo object metadata does not contain 'properties/file:content/mime-type' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'file'")
+ 
+        return mimetype
 
     def get_calisphere_object_type(self, nuxeo_type):
         try:
