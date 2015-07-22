@@ -130,7 +130,7 @@ class DeepHarvestNuxeo(object):
         ''' given the full metadata for an object, extract selected values '''
         properties = {} 
         for key, value in UCLDC_SCHEMA_MAP.iteritems():
-            if metadata['properties'][key]:
+            if metadata['properties'][key] is not None:
                 properties[value] = metadata['properties'][key]
  
         return properties
