@@ -105,7 +105,7 @@ def main(argv=None):
     ''' run deep harvest for Nuxeo collection '''
     parser = argparse.ArgumentParser(description='Deep harvest Nuxeo content at a given path')
     parser.add_argument("path", help="Nuxeo document path")
-    parser.add_argument("--bucket", help="S3 bucket where media.json files will be stashed")
+    parser.add_argument("--bucket", default='static.ucldc.cdlib.org/media_json', help="S3 bucket where media.json files will be stashed")
     parser.add_argument("--pynuxrc", default='~/.pynuxrc', help="rc file for use by pynux")
     if argv is None:
         argv = parser.parse_args()
