@@ -90,7 +90,7 @@ class MediaJson():
         
     def _create_json_file(self, content_dict, filepath):
         """ convert dict to json and write to file """
-        content_json = json.dumps(content_dict, indent=4, separators=(',', ': '), sort_keys=True)
+        content_json = json.dumps(content_dict, indent=4, separators=(',', ': '), sort_keys=False)
         with open(filepath, 'wb') as f:
             f.write(content_json)
             f.flush() 

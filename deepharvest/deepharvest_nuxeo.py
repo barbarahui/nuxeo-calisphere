@@ -77,7 +77,8 @@ class DeepHarvestNuxeo(object):
             if current != start_obj:
                 components.append(current)
             if depth != 0:
-                for child in self.nx.children(current['path']):
+                query = "SELECT * FROM Document WHERE ecm:parentId = '{}' ORDER BY ecm:pos".format(current['uid'])
+                for child in self.nx.nxql(query):
                     recurse(child, depth-1)
 
         recurse(start_obj, depth)
