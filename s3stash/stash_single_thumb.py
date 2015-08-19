@@ -8,10 +8,10 @@ from s3stash.nxstash_thumb import NuxeoStashThumb
 
 def main(argv=None):
     ''' stash a single thumb for object of calisphere type 'file' on s3 '''
-    parser = argparse.ArgumentParser(description='Stash Nuxeo file in S3.')
+    parser = argparse.ArgumentParser(description='Stash Nuxeo thumbnail in S3.')
     parser.add_argument('path', help="Nuxeo document path")
-    parser.add_argument('--bucket', default='ucldc-nuxeo-thumb-media', help="S3 bucket name")
-    parser.add_argument('--region', default='us-west-2', help="AWS region") 
+    parser.add_argument('--bucket', default='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media', help="S3 bucket name")
+    parser.add_argument('--region', default='us-east-1', help="AWS region") 
     parser.add_argument('--pynuxrc', default='~/.pynuxrc', help="rc file for use by pynux")
     parser.add_argument('--replace', action="store_true", help="replace file on s3 if it already exists")
     if argv is None:

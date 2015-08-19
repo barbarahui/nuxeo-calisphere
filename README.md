@@ -2,3 +2,5 @@
 ## Installation
 System requirements:
 - libmagic
+- imagemagick
+- ghostscript

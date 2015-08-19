@@ -4,13 +4,14 @@ import sys, os
 import argparse
 from s3stash.nxstashref import NuxeoStashRef
 import subprocess
+import shutil
 
 class NuxeoStashThumb(NuxeoStashRef):
     '''
         Class for fetching a Nuxeo object of type `SampleCustomFile`, 
         creating a thumbnail image of the file, and stashing in S3.
     '''
-    def __init__(self, path, bucket='ucldc-nuxeo-thumb-media', region='us-west-2', pynuxrc='~/.pynuxrc', replace=False):
+    def __init__(self, path, bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media', region='us-east-1', pynuxrc='~/.pynuxrc', replace=False):
        super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc, replace)
        self.magick_convert_location = '/usr/local/bin/convert'
 
@@ -33,8 +34,9 @@ class NuxeoStashThumb(NuxeoStashRef):
         # get file details
         self.file_info = self._get_file_info(self.metadata)
         self.source_download_url = self.file_info['url']
-        self.source_mimetype = self.file_info['mimetype']
+        self.source_mimetype = 'image/png' 
         self.source_filename = self.file_info['filename']
+        self.source_filename = self.source_filename.replace(' ', '_')
         self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)
         self.thumb_filepath = os.path.join(self.tmp_dir, 'thumb.png')
 
@@ -69,17 +71,15 @@ class NuxeoStashThumb(NuxeoStashRef):
         '''
            generate thumbnail image for PDF
            use ImageMagick `convert` tool as described here: http://www.nuxeo.com/blog/qa-friday-thumbnails-pdf-psd-documents/
-           this should create thumbnails that we can eventually store in Nuxeo as part of the document
         '''
         try:
+            input_string = "{}[0]".format(input_path) # [0] to specify first page of PDF
             subprocess.check_output([self.magick_convert_location,
+                "-quiet",
                 "-strip",
-                "-thumbnail", "100x100",
-                "-background", "transparent",
-                "-gravity", "center",
                 "-format", "png",
                 "-quality", "75",
-                input_path,
+                input_string,
                 output_path])
             to_thumb = True
             msg = "Used ImageMagic `convert` to convert {} to {}".format(input_path, output_path)
