@@ -7,6 +7,7 @@ import mediajson
 from pynux import utils 
 import logging
 import urlparse
+import urllib
 
 REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file'
 
@@ -36,7 +37,7 @@ class DeepHarvestNuxeo(object):
         else:
             self.nx = utils.Nuxeo(conf={}) 
 
-        self.path = path
+        self.path = urllib.quote(path)
         self.s3_bucket_mediajson = s3_bucket_mediajson
         self.mj = mediajson.MediaJson()
 
