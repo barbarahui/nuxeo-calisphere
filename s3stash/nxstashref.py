@@ -11,6 +11,7 @@ import urlparse
 import logging
 import shutil
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
+import urllib
 
 S3_URL_FORMAT = "s3://{0}/{1}"
 
@@ -22,7 +23,7 @@ class NuxeoStashRef(object):
        
         self.logger = logging.getLogger(__name__)
         
-        self.path = path
+        self.path = urllib.quote(path)
         self.bucket = bucket
         self.pynuxrc = pynuxrc
         self.region = region
