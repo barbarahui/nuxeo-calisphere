@@ -7,6 +7,7 @@ import requests
 import subprocess
 import tempfile
 import boto
+from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 import urlparse
 import logging
 import shutil
@@ -101,7 +102,11 @@ class NuxeoStashRef(object):
        parts = urlparse.urlsplit(s3_url)
        mimetype = self.source_mimetype 
        
-       conn = boto.s3.connect_to_region(self.region)
+       # FIXME ugh this is such a hack. not sure what is going on here.
+       if self.region == 'us-east-1':
+           conn = boto.connect_s3(calling_format = OrdinaryCallingFormat())
+       else:
+           conn = boto.s3.connect_to_region(self.region)
 
        try:
            bucket = conn.get_bucket(bucketbase)
