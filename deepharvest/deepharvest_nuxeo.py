@@ -75,7 +75,8 @@ class DeepHarvestNuxeo(object):
         components = []
 
         def recurse(current, depth):
-            if current != start_obj:
+            metadata = self.nx.get_metadata(uid=current['uid'])
+            if current != start_obj and self.has_file(metadata):
                 components.append(current)
             if depth != 0:
                 query = "SELECT * FROM Document WHERE ecm:parentId = '{}' ORDER BY ecm:pos".format(current['uid'])
