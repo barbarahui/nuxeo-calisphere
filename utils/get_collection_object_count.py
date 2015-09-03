@@ -10,6 +10,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Print count of objects for a given collection.')
     parser.add_argument('path', help="Nuxeo path to collection")
     parser.add_argument('--pynuxrc', default='~/.pynuxrc-prod', help="rcfile for use with pynux utils")
+    parser.add_argument('--components', action='store_true', help="show counts for object components")
     if argv is None:
         argv = parser.parse_args()
     
@@ -18,6 +19,9 @@ def main(argv=None):
     objects = dh.fetch_objects()
     object_count = len(objects)
     print "finished fetching objects. {} found".format(object_count)
+
+    if not argv.components:
+        return
 
     print "about to iterate through objects and get components"
     component_count = 0
