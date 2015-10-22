@@ -21,6 +21,7 @@ setup(
         'boto',
         'pynux',
         'python-magic',
+        'couchdb'
     ],
     packages=['deepharvest', 's3stash'],
     test_suite='tests'
