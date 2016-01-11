@@ -5,3 +5,4 @@ dist/
 *.log
 deepharvest/deepharvestenv/
 build/
+reports/
