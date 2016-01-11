@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name = "UCLDC Deep Harvester",
-    version = "0.0.1",
+    version = "0.0.2",
     description = ("deep harvester code for the UCLDC project"),
     long_description=read('README.md'),
     author='Barbara Hui',
