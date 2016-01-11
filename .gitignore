@@ -6,3 +6,4 @@ dist/
 deepharvest/deepharvestenv/
 build/
 reports/
+logs/
