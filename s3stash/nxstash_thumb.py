@@ -24,6 +24,7 @@ class NuxeoStashThumb(NuxeoStashRef):
         self._update_report('stashed', False)
 
         if not self.calisphere_type == 'file':
+            self._update_report('calisphere_type', self.calisphere_type)
             return self.report
 
         self.has_file = self.dh.has_file(self.metadata)
