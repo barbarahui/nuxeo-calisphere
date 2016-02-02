@@ -8,6 +8,7 @@ from pynux import utils
 import logging
 import urlparse
 import urllib
+from dplaingestion.mappers.ucldc_nuxeo_mapper import UCLDCNuxeoMapper
 
 REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file'
 
@@ -94,6 +95,7 @@ class DeepHarvestNuxeo(object):
 
         # only provide id, href, format if Nuxeo Document has file attached
         full_metadata = self.nx.get_metadata(uid=obj['uid'])   
+
         if self.has_file(full_metadata):
             metadata['id'] = obj['uid']
             metadata['href'] = self.get_object_download_url(full_metadata)
@@ -108,12 +110,15 @@ class DeepHarvestNuxeo(object):
         metadata['label'] = obj['title']
         metadata['id'] = obj['uid']
         metadata['href'] = self.get_object_download_url(full_metadata)
-        metadata['format'] = self.get_calisphere_object_type(obj['type'])
 
         # extract additional  ucldc metadata from 'properties' element
         ucldc_md = self.get_ucldc_schema_properties(full_metadata)
+
         for key, value in ucldc_md.iteritems():
             metadata[key] = value
+
+        # map 'type'
+        metadata['format'] = self.get_calisphere_object_type(obj['type'])
 
         return metadata
 
@@ -132,11 +137,14 @@ class DeepHarvestNuxeo(object):
     def get_ucldc_schema_properties(self, metadata):
         ''' given the full metadata for an object, extract selected values '''
         properties = {} 
-        for key, value in UCLDC_SCHEMA_MAP.iteritems():
-            v = metadata['properties'][key]
-            if v is not None and len(v) > 0:
-                properties[value] = v 
- 
+
+        mapper = UCLDCNuxeoMapper(metadata)
+        mapper.map_original_record()
+        mapper.map_source_resource()
+
+        properties = mapper.mapped_data['sourceResource']
+        properties.update(mapper.mapped_data['originalRecord'])
+
         return properties
 
     

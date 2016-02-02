@@ -11,7 +11,6 @@ import magic
 import logging
 
 OBJECT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'structMap']
-COMPONENT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'transcription']
 VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
 S3_URL_FORMAT = "s3://{0}/{1}"
 FILENAME_FORMAT = "{0}-media.json"
@@ -62,7 +61,7 @@ class MediaJson():
         '''
         component_json = {} 
         for key, value in source_component.iteritems():
-            if key in COMPONENT_LEVEL_PROPERTIES:
+            if value:
                 if key in VALID_VALUES:
                     if value not in VALID_VALUES[key]:
                         raise ValueError("Invalid {}. Expected one of: {}".format(key, value))    

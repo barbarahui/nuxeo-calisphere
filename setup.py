@@ -16,13 +16,19 @@ setup(
     author_email='barbara.hui@ucop.edu',
     dependency_links=[
         'https://github.com/ucldc/pynux/archive/master.zip#egg=pynux',
+        'https://github.com/mredar/jsonpath/archive/master.zip#egg=jsonpath'
     ],
     install_requires=[
         'boto',
         'pynux',
         'python-magic',
-        'couchdb'
+        'couchdb',
+        'jsonpath',
+        'akara'
     ],
     packages=['deepharvest', 's3stash'],
     test_suite='tests'
 )
+### note: dpla-ingestion code is a dependency
+###pip_main(['install',
+###         'git+ssh://git@bitbucket.org/mredar/dpla-ingestion.git@ucldc'])
