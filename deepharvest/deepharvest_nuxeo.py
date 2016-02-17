@@ -21,6 +21,7 @@ TYPE_MAP = {"SampleCustomPicture": "image",
            }
 
 UCLDC_SCHEMA_MAP = {'ucldc_schema:transcription': 'transcription'}
+CHILD_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' ORDER BY ecm:pos"
 
 class DeepHarvestNuxeo(object):
     ''' 
@@ -39,14 +40,15 @@ class DeepHarvestNuxeo(object):
             self.nx = utils.Nuxeo(conf={}) 
 
         self.path = urllib.quote(path)
+        self.uid = self.nx.get_uid(self.path)
         self.s3_bucket_mediajson = s3_bucket_mediajson
         self.mj = mediajson.MediaJson()
 
     def fetch_objects(self):
         ''' fetch Nuxeo objects at a given path '''
-        children = self.nx.children(self.path)
         objects = []
-        for child in children:
+        query = CHILD_NXQL.format(self.uid)
+        for child in self.nx.nxql(query):
             objects.extend(self.fetch_harvestable(child))
 
         return objects
@@ -64,7 +66,8 @@ class DeepHarvestNuxeo(object):
                 harvestable.append(current)
             if depth != 0:
                 if current['type'] == 'Organization':
-                    for child in self.nx.children(current['path']):
+                    query = CHILD_NXQL.format(current['uid'])
+                    for child in self.nx.nxql(query):
                         recurse(child, depth-1)
 
         recurse(start_obj, depth)
@@ -80,7 +83,7 @@ class DeepHarvestNuxeo(object):
             if current != start_obj and self.has_file(metadata) and not current['path'].endswith('.trashed'):
                 components.append(current)
             if depth != 0:
-                query = "SELECT * FROM Document WHERE ecm:parentId = '{}' ORDER BY ecm:pos".format(current['uid'])
+                query = CHILD_NXQL.format(current['uid'])
                 for child in self.nx.nxql(query):
                     recurse(child, depth-1)
 
