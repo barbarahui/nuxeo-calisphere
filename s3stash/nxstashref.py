@@ -13,6 +13,7 @@ import logging
 import shutil
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
 import urllib
+from os.path import expanduser
 
 S3_URL_FORMAT = "s3://{0}/{1}"
 
@@ -24,16 +25,16 @@ class NuxeoStashRef(object):
        
         self.logger = logging.getLogger(__name__)
         
-        self.path = urllib.quote(path)
+        self.path = path
         self.bucket = bucket
         self.pynuxrc = pynuxrc
         self.region = region
         self.replace = replace
         self.logger.info("initialized NuxeoStashRef with path {}".format(self.path))
 
-        self.nx = utils.Nuxeo(rcfile=self.pynuxrc)
-        self.uid = self.nx.get_uid(self.path)
-        self.metadata = self.nx.get_metadata(path=self.path)
+        self.nx = utils.Nuxeo(rcfile=open(expanduser(self.pynuxrc), 'r'))
+        self.uid = self.nx.get_uid(urllib.quote(self.path))
+        self.metadata = self.nx.get_metadata(path=urllib.quote(self.path))
 
         self.dh = DeepHarvestNuxeo(self.path)
         self.calisphere_type = self.dh.get_calisphere_object_type(self.metadata['type']) 
