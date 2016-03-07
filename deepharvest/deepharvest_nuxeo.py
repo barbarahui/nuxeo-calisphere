@@ -104,7 +104,9 @@ class DeepHarvestNuxeo(object):
             metadata['id'] = obj['uid']
             metadata['href'] = self.get_object_download_url(full_metadata)
             metadata['format'] = self.get_calisphere_object_type(obj['type'])
-
+            if metadata['format'] == 'video':
+                metadata['dimensions'] = self.get_video_dimensions(full_metadata)
+        
         return metadata 
 
     def get_component_metadata(self, obj):
@@ -183,6 +185,25 @@ class DeepHarvestNuxeo(object):
             raise ValueError("Invalid type: {0} for: {1} Expected one of: {2}".format(nuxeo_type, self.path, TYPE_MAP.keys()))        
         return calisphere_type 
 
+    def get_video_dimensions(self, metadata):
+        ''' given the full metadata for an object, get dimensions in format `width:height` '''
+        try:
+            vid_info = metadata['properties']['vid:info']
+        except KeyError:
+            raise KeyError("Nuxeo object metadata does not contain 'properties/vid:info' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'video'")
+
+        try:
+            width = vid_info['width']
+        except KeyError:
+            raise KeyError("Nuxeo object metadata does not contain 'properties/vid:info/width' element.")
+
+        try:
+            height = vid_info['height']
+        except KeyError:
+            raise KeyError("Nuxeo object metadata does not contain 'properties/video:info/height' element.")
+
+        return "{}:{}".format(width, height)
+
 def main(argv=None):
     ''' run deep harvest for Nuxeo collection '''
     parser = argparse.ArgumentParser(description='Deep harvest Nuxeo content at a given path')
@@ -199,6 +220,7 @@ def main(argv=None):
         component_md = [dh.get_component_metadata(c) for c in dh.fetch_components(obj)]
         media_json = dh.mj.create_media_json(parent_md, component_md)
         print dh.mj.stash_media_json(obj['uid'], media_json, argv.bucket)
+
 
 if __name__ == "__main__":
     sys.exit(main())
