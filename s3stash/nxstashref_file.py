@@ -4,10 +4,11 @@ import sys, os
 import argparse
 from s3stash.nxstashref import NuxeoStashRef
 
+VALID_CALISPHERE_TYPES = ['file', 'audio', 'video']
+
 class NuxeoStashFile(NuxeoStashRef):
     ''' 
-        Class for fetching a Nuxeo object of type `SampleCustomFile` 
-        and stashing in s3.
+        Class for fetching a Nuxeo object file and stashing in S3
     '''
     def __init__(self, path, bucket='ucldc-nuxeo-ref-media', region='us-west-2', pynuxrc='~/.pynuxrc', replace=False):
         super(NuxeoStashFile, self).__init__(path, bucket, region, pynuxrc, replace)
@@ -17,7 +18,7 @@ class NuxeoStashFile(NuxeoStashRef):
 
         self.report['stashed'] = False
 
-        if not self.calisphere_type == 'file':
+        if not self.calisphere_type in VALID_CALISPHERE_TYPES:
             return self.report
 
         self.has_file = self.dh.has_file(self.metadata)

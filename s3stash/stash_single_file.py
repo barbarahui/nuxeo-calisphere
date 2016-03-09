@@ -7,7 +7,7 @@ import json
 from s3stash.nxstashref_file import NuxeoStashFile
 
 def main(argv=None):
-    ''' stash a single file of calisphere type 'file' on s3 '''
+    ''' stash a single file from Nuxeo on s3 '''
     parser = argparse.ArgumentParser(description='Stash Nuxeo file in S3.')
     parser.add_argument('path', help="Nuxeo document path")
     parser.add_argument('--bucket', default='ucldc-nuxeo-ref-media', help="S3 bucket name")

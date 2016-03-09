@@ -7,8 +7,10 @@ import json
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
 from s3stash.nxstashref_file import NuxeoStashFile
 
+VALID_CALISPHERE_TYPES = ['file', 'audio', 'video']
+
 def main(argv=None):
-    ''' stash Nuxeo files of type 'file' for a collection '''
+    ''' stash Nuxeo files of type 'file', 'audio', or 'video' for a collection '''
     parser = argparse.ArgumentParser(description='For Nuxeo collection, stash files (pdf, txt, etc) in S3.')
     parser.add_argument('path', help="Nuxeo document path to collection")
     parser.add_argument('--bucket', default='ucldc-nuxeo-ref-media', help="S3 bucket name")
@@ -48,8 +50,8 @@ def main(argv=None):
     print "REPORT:\t{}".format(reportfile)
     print "SUMMARY:"
     print "processed:\t{}".format(len(report))
-    not_file = len([key for key, value in report.iteritems() if not value['calisphere_type'] == 'file'])
-    print "not type `file`:\t{}".format(not_file)
+    not_file = len([key for key, value in report.iteritems() if not value['calisphere_type'] in VALID_CALISPHERE_TYPES])
+    print "not type `file`, `audio` or `video`:\t{}".format(not_file)
     stashed = len([key for key, value in report.iteritems() if value['stashed']])
     print "stashed:\t{}".format(stashed)
 
