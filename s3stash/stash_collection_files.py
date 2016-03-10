@@ -52,8 +52,10 @@ def main(argv=None):
     print "processed:\t{}".format(len(report))
     not_file = len([key for key, value in report.iteritems() if not value['calisphere_type'] in VALID_CALISPHERE_TYPES])
     print "not type `file`, `audio` or `video`:\t{}".format(not_file)
+    already_stashed = len([key for key, value in report.iteritems() if value['already_s3_stashed']])
+    print "already stashed:\t{}".format(already_stashed)
     stashed = len([key for key, value in report.iteritems() if value['stashed']])
-    print "stashed:\t{}".format(stashed)
+    print "(re)stashed:\t{}".format(stashed)
 
     print "\nDone."
 

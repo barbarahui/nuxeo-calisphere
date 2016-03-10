@@ -93,6 +93,32 @@ class NuxeoStashRef(object):
 
         return info
 
+    def _is_s3_stashed(self):
+       """ Check for existence of key on S3.
+       """
+       key_exists = False
+
+       bucketpath = self.bucket.strip("/")
+       bucketbase = self.bucket.split("/")[0]
+       s3_url = S3_URL_FORMAT.format(bucketpath, self.uid)
+       parts = urlparse.urlsplit(s3_url)
+
+       # FIXME ugh this is such a hack. not sure what is going on here.
+       if self.region == 'us-east-1':
+           conn = boto.connect_s3(calling_format = OrdinaryCallingFormat())
+       else:
+           conn = boto.s3.connect_to_region(self.region)
+
+       try:
+           bucket = conn.get_bucket(bucketbase)
+       except boto.exception.S3ResponseError:
+           self.logger.info("Bucket does not exist: {}".format(bucketbase))
+           return False 
+       
+       if bucket.get_key(parts.path):
+           return True 
+
+
     def _s3_stash(self):
        """ Stash file in S3 bucket. 
        """
