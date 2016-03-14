@@ -34,7 +34,8 @@ def main(argv=None):
     # parse report to give basic stats
     print "REPORT:\t{}".format(reportfile)
     print "SUMMARY:"
-    print "already stashed:\t{}".format(report['already_s3_stashed'])
+    if 'already_s3_stashed' in report.keys():
+        print "already stashed:\t{}".format(report['already_s3_stashed'])
     print "(re)stashed:\t{}".format(report['stashed']) 
 
     print "\nDone."
