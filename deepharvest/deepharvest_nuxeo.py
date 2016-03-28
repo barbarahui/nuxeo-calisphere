@@ -63,7 +63,7 @@ class DeepHarvestNuxeo(object):
         harvestable = []
 
         def recurse(current, depth):
-            if current['type'] != 'Organization' and not current['path'].endswith('.trashed'):
+            if current['type'] != 'Organization' and not '.trashed' in current['path']:
                 harvestable.append(current)
             if depth != 0:
                 if current['type'] == 'Organization':
@@ -81,7 +81,7 @@ class DeepHarvestNuxeo(object):
 
         def recurse(current, depth):
             metadata = self.nx.get_metadata(uid=current['uid'])
-            if current != start_obj and self.has_file(metadata) and not current['path'].endswith('.trashed'):
+            if current != start_obj and self.has_file(metadata) and not '.trashed' in current['path']:
                 components.append(current)
             if depth != 0:
                 query = CHILD_NXQL.format(current['uid'])
