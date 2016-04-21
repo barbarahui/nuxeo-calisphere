@@ -19,6 +19,7 @@ class NuxeoStashFile(NuxeoStashRef):
         self.report['stashed'] = False
 
         if not self.calisphere_type in VALID_CALISPHERE_TYPES:
+            self._update_report('valid_type', False)
             return self.report
 
         self.has_file = self.dh.has_file(self.metadata)
@@ -26,9 +27,9 @@ class NuxeoStashFile(NuxeoStashRef):
         if not self.has_file:
             return self.report 
 
-        if not self.replace:
-            self.s3_stashed = self._is_s3_stashed()
-            self._update_report('already_s3_stashed', self.s3_stashed)
+        self.s3_stashed = self._is_s3_stashed()
+        self._update_report('already_s3_stashed', self.s3_stashed)
+        if not self.replace and self.s3_stashed:
             return self.report 
 
         # get file details 
