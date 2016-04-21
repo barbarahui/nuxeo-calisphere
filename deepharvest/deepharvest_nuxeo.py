@@ -22,7 +22,7 @@ TYPE_MAP = {"SampleCustomPicture": "image",
            }
 
 UCLDC_SCHEMA_MAP = {'ucldc_schema:transcription': 'transcription'}
-CHILD_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' ORDER BY ecm:pos"
+CHILD_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' AND ecm:currentLifeCycleState != 'deleted' ORDER BY ecm:pos"
 
 class DeepHarvestNuxeo(object):
     ''' 
@@ -63,7 +63,7 @@ class DeepHarvestNuxeo(object):
         harvestable = []
 
         def recurse(current, depth):
-            if current['type'] != 'Organization' and not '.trashed' in current['path']:
+            if current['type'] != 'Organization':
                 harvestable.append(current)
             if depth != 0:
                 if current['type'] == 'Organization':
@@ -81,7 +81,7 @@ class DeepHarvestNuxeo(object):
 
         def recurse(current, depth):
             metadata = self.nx.get_metadata(uid=current['uid'])
-            if current != start_obj and self.has_file(metadata) and not '.trashed' in current['path']:
+            if current != start_obj and self.has_file(metadata):
                 components.append(current)
             if depth != 0:
                 query = CHILD_NXQL.format(current['uid'])
