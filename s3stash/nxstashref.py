@@ -61,7 +61,7 @@ class NuxeoStashRef(object):
         shutil.rmtree(self.tmp_dir)
 
     def _download_nuxeo_file(self):
-        res = requests.get(self.source_download_url, auth=self.nx.auth)
+        res = requests.get(self.source_download_url, headers=self.nx.document_property_headers, auth=self.nx.auth)
         res.raise_for_status()
         with open(self.source_filepath, 'wb') as f:
             for block in res.iter_content(1024):
@@ -117,6 +117,8 @@ class NuxeoStashRef(object):
        
        if bucket.get_key(parts.path):
            return True 
+       else:
+           return False
 
 
     def _s3_stash(self):
