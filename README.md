@@ -10,14 +10,8 @@ Scripts for "deep harvesting" content from the UCLDC Nuxeo instance, which essen
 Clone this repo as per usual, e.g.:
 
     https://github.com/barbarahui/nuxeo-calisphere.git
-    
-Install system dependencies:
 
-- libmagic
-- imagemagick
-- ghostscript
-
-Install the nuxeo-calisphere python package:
+Install the package:
 
      $ cd nuxeo-calisphere
      $ python setup.py install
