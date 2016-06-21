@@ -11,7 +11,7 @@ import urllib
 from dplaingestion.mappers.ucldc_nuxeo_mapper import UCLDCNuxeoMapper
 from os.path import expanduser
 
-REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file'
+REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file,extra_files'
 
 # type Organization should actually be type CustomFile. Adding workaround for now.
 TYPE_MAP = {"SampleCustomPicture": "image",
