@@ -14,6 +14,7 @@ import shutil
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
 import urllib
 from os.path import expanduser
+import s3stash.s3tools 
 
 S3_URL_FORMAT = "s3://{0}/{1}"
 
@@ -96,79 +97,12 @@ class NuxeoStashRef(object):
     def _is_s3_stashed(self):
        """ Check for existence of key on S3.
        """
-       key_exists = False
-
-       bucketpath = self.bucket.strip("/")
-       bucketbase = self.bucket.split("/")[0]
-       s3_url = S3_URL_FORMAT.format(bucketpath, self.uid)
-       parts = urlparse.urlsplit(s3_url)
-
-       # FIXME ugh this is such a hack. not sure what is going on here.
-       if self.region == 'us-east-1':
-           conn = boto.connect_s3(calling_format = OrdinaryCallingFormat())
-       else:
-           conn = boto.s3.connect_to_region(self.region)
-
-       try:
-           bucket = conn.get_bucket(bucketbase)
-       except boto.exception.S3ResponseError:
-           self.logger.info("Bucket does not exist: {}".format(bucketbase))
-           return False 
-       
-       if bucket.get_key(parts.path):
-           return True 
-       else:
-           return False
-
+       return s3stash.s3tools.is_s3_stashed(self.bucket, self.uid, self.region)
 
     def _s3_stash(self):
        """ Stash file in S3 bucket. 
        """
-       report = {}
-       bucketpath = self.bucket.strip("/")
-       bucketbase = self.bucket.split("/")[0]   
-       s3_url = S3_URL_FORMAT.format(bucketpath, self.uid)
-       parts = urlparse.urlsplit(s3_url)
-       mimetype = self.source_mimetype 
-       
-       # FIXME ugh this is such a hack. not sure what is going on here.
-       if self.region == 'us-east-1':
-           conn = boto.connect_s3(calling_format = OrdinaryCallingFormat())
-       else:
-           conn = boto.s3.connect_to_region(self.region)
-
-       try:
-           bucket = conn.get_bucket(bucketbase)
-       except boto.exception.S3ResponseError:
-           bucket = conn.create_bucket(bucketbase)
-           self.logger.info("Created S3 bucket {}".format(bucketbase))
-
-       if not(bucket.get_key(parts.path)):
-           key = bucket.new_key(parts.path)
-           key.set_metadata("Content-Type", mimetype)
-           key.set_contents_from_filename(self.source_filepath)
-           msg = "created {0}".format(s3_url)
-           action = 'created'
-           self.logger.info(msg)
-       elif self.replace:
-           key = bucket.get_key(parts.path)
-           key.set_metadata("Content-Type", mimetype)
-           key.set_contents_from_filename(self.source_filepath)
-           msg = "re-uploaded {}".format(s3_url)
-           action = 'replaced'
-           self.logger.info(msg)
-       else:
-           msg = "key already existed; not re-uploading {0}".format(s3_url)
-           action = 'skipped'
-           self.logger.info(msg)
-
-       report['s3_url'] = s3_url
-       report['msg'] = msg
-       report['action'] = action 
-       report['stashed'] = True
-
-       return True, report
-
+       return s3stash.s3tools.s3stash(self.source_filepath, self.bucket, self.uid, self.region, self.source_mimetype, self.replace)
 
 def main(argv=None):
     pass
