@@ -38,7 +38,7 @@ def s3stash(filepath, bucket, key, region, mimetype, replace=False):
        try:
            bucket = conn.get_bucket(bucketbase)
        except boto.exception.S3ResponseError:
-           bucket = conn.create_bucket(bucketbase)
+           bucket = conn.create_bucket(bucketbase, location=region)
            logger.info("Created S3 bucket {}".format(bucketbase))
 
        if not(bucket.get_key(parts.path)):
