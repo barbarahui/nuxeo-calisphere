@@ -15,7 +15,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Create and stash media.json files for a nuxeo collection')
     parser.add_argument("path", help="Nuxeo document path")
     parser.add_argument("--bucket", default="static.ucldc.cdlib.org/media_json", help="S3 bucket where media.json files will be stashed")
-    parser.add_argument('--region', default='us-west-2', help="aws region")
+    parser.add_argument('--region', default='us-east-1', help="aws region")
     parser.add_argument("--pynuxrc", default='~/.pynuxrc', help="rc file for use by pynux")
 
     if argv is None:
