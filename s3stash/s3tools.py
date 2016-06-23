@@ -13,11 +13,21 @@ def s3stash(filepath, bucket, key, region, mimetype, replace=False):
        """
        logger = logging.getLogger(__name__)
 
+       logger.info("filepath: {}".format(filepath))
+       logger.info("bucket: {}".format(bucket))
+       logger.info("key: {}".format(key))
+       logger.info("region: {}".format(region))
+       logger.info("mimetype: {}".format(mimetype))
+
        report = {}
        bucketpath = bucket.strip("/")
        bucketbase = bucket.split("/")[0]
        s3_url = S3_URL_FORMAT.format(bucketpath, key)
        parts = urlparse.urlsplit(s3_url)
+
+       logger.info("bucketpath: {}".format(bucketpath))
+       logger.info("bucketbase: {}".format(bucketbase))
+       logger.info("s3_url: {}".format(s3_url))
 
        # FIXME ugh this is such a hack. not sure what is going on here.
        if region == 'us-east-1':
