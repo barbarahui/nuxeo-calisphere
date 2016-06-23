@@ -8,7 +8,6 @@ from pynux import utils
 import logging
 import urlparse
 import urllib
-from dplaingestion.mappers.ucldc_nuxeo_mapper import UCLDCNuxeoMapper
 from os.path import expanduser
 
 REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file,extra_files'
@@ -92,41 +91,6 @@ class DeepHarvestNuxeo(object):
 
         return components 
  
-    def get_parent_metadata(self, obj):
-        ''' assemble top-level (parent) object metadata '''
-        metadata = {}
-        metadata['label'] = obj['title']
-
-        # only provide id, href, format if Nuxeo Document has file attached
-        full_metadata = self.nx.get_metadata(uid=obj['uid'])   
-
-        if self.has_file(full_metadata):
-            metadata['id'] = obj['uid']
-            metadata['href'] = self.get_object_download_url(full_metadata)
-            metadata['format'] = self.get_calisphere_object_type(obj['type'])
-            if metadata['format'] == 'video':
-                metadata['dimensions'] = self.get_video_dimensions(full_metadata)
-        
-        return metadata 
-
-    def get_component_metadata(self, obj):
-        ''' assemble component object metadata ''' 
-        metadata = {}
-        full_metadata = self.nx.get_metadata(uid=obj['uid'])
-        metadata['label'] = obj['title']
-        metadata['id'] = obj['uid']
-        metadata['href'] = self.get_object_download_url(full_metadata)
-
-        # extract additional  ucldc metadata from 'properties' element
-        ucldc_md = self.get_ucldc_schema_properties(full_metadata)
-
-        for key, value in ucldc_md.iteritems():
-            metadata[key] = value
-
-        # map 'type'
-        metadata['format'] = self.get_calisphere_object_type(obj['type'])
-
-        return metadata
 
     def has_file(self, metadata):
         ''' given the full metadata for an object, determine whether or not nuxeo document has file content '''
@@ -140,18 +104,6 @@ class DeepHarvestNuxeo(object):
         else:
             return True
 
-    def get_ucldc_schema_properties(self, metadata):
-        ''' given the full metadata for an object, extract selected values '''
-        properties = {} 
-
-        mapper = UCLDCNuxeoMapper(metadata)
-        mapper.map_original_record()
-        mapper.map_source_resource()
-
-        properties = mapper.mapped_data['sourceResource']
-        properties.update(mapper.mapped_data['originalRecord'])
-
-        return properties
 
     
     def get_object_download_url(self, metadata):
