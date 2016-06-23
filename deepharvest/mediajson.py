@@ -115,7 +115,7 @@ class MediaJson():
 
        try:
            bucket = conn.get_bucket(bucketbase)
-       except boto.exception.S3ResponseError:
+       except conn.exception.S3ResponseError:
            bucket = conn.create_bucket(bucketbase)
 
        if not(bucket.get_key(parts.path)):
