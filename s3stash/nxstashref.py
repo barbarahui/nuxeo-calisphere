@@ -4,11 +4,7 @@ import sys, os
 import argparse
 from pynux import utils
 import requests
-import subprocess
 import tempfile
-import boto
-from boto.s3.connection import S3Connection, OrdinaryCallingFormat
-import urlparse
 import logging
 import shutil
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
