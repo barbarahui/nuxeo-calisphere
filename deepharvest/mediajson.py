@@ -7,13 +7,10 @@ import tempfile
 from boto import connect_s3
 from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 import urlparse
-import magic
 import logging
 
 OBJECT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'structMap']
 VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
-S3_URL_FORMAT = "s3://{0}/{1}"
-FILENAME_FORMAT = "{0}-media.json"
 
 class MediaJson():
     def __init__(self):
@@ -68,68 +65,6 @@ class MediaJson():
                 component_json[key] = value
       
         return component_json
-
-    def stash_media_json(self, uid, media_dict, bucket, s3_conn=None):
-        """ stash <id>-media.json file on S3 """
-        tmp_dir = tempfile.mkdtemp()
-        filename = FILENAME_FORMAT.format(uid)
-        tmp_filepath = os.path.join(tmp_dir, filename)
-    
-        # write json to file 
-        self._create_json_file(media_dict, tmp_filepath)
-
-        # stash in s3
-        s3_location = self._s3_stash(tmp_filepath, bucket, filename, s3_conn)
-
-        # delete temp stuff
-        os.remove(tmp_filepath)
-        os.rmdir(tmp_dir)
- 
-        return s3_location
-        
-    def _create_json_file(self, content_dict, filepath):
-        """ convert dict to json and write to file """
-        content_json = json.dumps(content_dict, indent=4, separators=(',', ': '), sort_keys=False)
-        with open(filepath, 'wb') as f:
-            f.write(content_json)
-            f.flush() 
-
-    def _s3_stash(self, filepath, bucketpath, obj_key, conn=None):
-       """ Stash a file in the named bucket. 
-         `conn` is an optional boto.connect_s3()
-       """
-       bucketpath = bucketpath.strip("/")
-       bucketbase = bucketpath.split("/")[0]   
-       s3_url = S3_URL_FORMAT.format(bucketpath, obj_key)
-       parts = urlparse.urlsplit(s3_url)
-       #mimetype = magic.from_file(filepath, mime=True)
-       mimetype = 'application/json'
-       
-       logging.debug('s3_url: {0}'.format(s3_url))
-       logging.debug('bucketpath: {0}'.format(bucketpath))
-       logging.debug('bucketbase: {0}'.format(bucketbase))
- 
-       if conn is None:
-           # don't know why calling_format isn't getting read out of .aws/config file
-           conn = connect_s3(calling_format = OrdinaryCallingFormat()) 
-
-       try:
-           bucket = conn.get_bucket(bucketbase)
-       except conn.exception.S3ResponseError:
-           bucket = conn.create_bucket(bucketbase)
-
-       if not(bucket.get_key(parts.path)):
-           key = bucket.new_key(parts.path)
-           key.set_metadata("Content-Type", mimetype)
-           key.set_contents_from_filename(filepath)
-           logging.info("created {0}".format(s3_url))
-       else:
-           logging.info("key already existed; updating: {0}".format(s3_url))
-           key = bucket.get_key(parts.path)
-           key.set_metadata("Content-Type", mimetype)
-           key.set_contents_from_filename(filepath) 
-
-       return s3_url 
 
 if __name__ == '__main__':
     sys.exit(main())
