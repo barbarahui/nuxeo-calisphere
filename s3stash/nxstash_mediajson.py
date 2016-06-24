@@ -9,7 +9,7 @@ from dplaingestion.mappers.ucldc_nuxeo_mapper import UCLDCNuxeoMapper
 import json
 import s3stash.s3tools
 
-FILENAME_FORMAT = "{0}-media.json"
+FILENAME_FORMAT = "{}-media.json"
 
 class NuxeoStashMediaJson(NuxeoStashRef):
     ''' create and stash media.json file for a nuxeo object '''
@@ -85,7 +85,7 @@ class NuxeoStashMediaJson(NuxeoStashRef):
         return metadata
 
     def _get_ucldc_schema_properties(self, metadata):
-        ''' given the full metadata for an object, extract selected values '''
+        ''' get additional metadata as mapped by harvester '''
         properties = {}
 
         mapper = UCLDCNuxeoMapper(metadata)
