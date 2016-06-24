@@ -2,15 +2,11 @@
 # -*- coding: utf8 -*-
 
 import sys, os
-import argparse
 import mediajson 
 from pynux import utils 
 import logging
-import urlparse
 import urllib
 from os.path import expanduser
-
-REQUIRED_DOC_PROPS = 'dublincore,ucldc_schema,picture,file,extra_files'
 
 # type Organization should actually be type CustomFile. Adding workaround for now.
 TYPE_MAP = {"SampleCustomPicture": "image",
@@ -20,7 +16,6 @@ TYPE_MAP = {"SampleCustomPicture": "image",
            "Organization": "file"
            }
 
-UCLDC_SCHEMA_MAP = {'ucldc_schema:transcription': 'transcription'}
 CHILD_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' AND ecm:currentLifeCycleState != 'deleted' ORDER BY ecm:pos"
 
 class DeepHarvestNuxeo(object):
@@ -42,7 +37,6 @@ class DeepHarvestNuxeo(object):
         self.path = urllib.quote(path)
         self.uid = self.nx.get_uid(self.path)
         self.s3_bucket_mediajson = s3_bucket_mediajson
-        self.mj = mediajson.MediaJson()
 
     def fetch_objects(self):
         ''' fetch Nuxeo objects at a given path '''
@@ -157,22 +151,7 @@ class DeepHarvestNuxeo(object):
         return "{}:{}".format(width, height)
 
 def main(argv=None):
-    ''' run deep harvest for Nuxeo collection '''
-    parser = argparse.ArgumentParser(description='Deep harvest Nuxeo content at a given path')
-    parser.add_argument("path", help="Nuxeo document path")
-    parser.add_argument("--bucket", default="static.ucldc.cdlib.org/media_json", help="S3 bucket where media.json files will be stashed")
-    parser.add_argument("--pynuxrc", default='~/.pynuxrc', help="rc file for use by pynux")
-    if argv is None:
-        argv = parser.parse_args()
-
-    dh = DeepHarvestNuxeo(argv.path, argv.bucket, pynuxrc=argv.pynuxrc)
-    objects = dh.fetch_objects()
-    for obj in objects:
-        parent_md = dh.get_parent_metadata(obj) 
-        component_md = [dh.get_component_metadata(c) for c in dh.fetch_components(obj)]
-        media_json = dh.mj.create_media_json(parent_md, component_md)
-        print dh.mj.stash_media_json(obj['uid'], media_json, argv.bucket)
-
+    pass
 
 if __name__ == "__main__":
     sys.exit(main())

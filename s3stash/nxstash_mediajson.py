@@ -4,6 +4,7 @@ import sys, os
 import argparse
 from s3stash.nxstashref import NuxeoStashRef
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
+from deepharvest.mediajson import MediaJson
 from dplaingestion.mappers.ucldc_nuxeo_mapper import UCLDCNuxeoMapper
 import json
 import s3stash.s3tools
@@ -16,6 +17,7 @@ class NuxeoStashMediaJson(NuxeoStashRef):
         super(NuxeoStashMediaJson, self).__init__(path, bucket, region, pynuxrc, replace)        
 
         self.dh = DeepHarvestNuxeo(self.path, self.bucket, pynuxrc=self.pynuxrc)
+        self.mj = MediaJson()
 
         self.filename = FILENAME_FORMAT.format(self.uid)
         self.filepath = os.path.join(self.tmp_dir, self.filename)       
@@ -34,7 +36,7 @@ class NuxeoStashMediaJson(NuxeoStashRef):
         component_md = [self._get_component_metadata(c) for c in self.dh.fetch_components(self.metadata)]
 
         # create media.json file
-        media_json = self.dh.mj.create_media_json(parent_md, component_md)
+        media_json = self.mj.create_media_json(parent_md, component_md)
         self._write_file(media_json, self.filepath)
 
         # stash media.json file on s3
