@@ -4,8 +4,11 @@ import boto
 import logging
 from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 import urlparse
+import requests
+import json
 
 S3_URL_FORMAT = "s3://{0}/{1}"
+REGISTRY_API_BASE = 'https://registry.cdlib.org/api/v1/'
 
 def s3stash(filepath, bucket, key, region, mimetype, replace=False):
        """ 
@@ -94,3 +97,16 @@ def is_s3_stashed(bucket, key, region):
            return True
        else:
            return False
+
+def get_nuxeo_path(registry_id):
+    ''' given ucldc registry collection ID, get Nuxeo path for collection '''
+    url = "{}collection/{}/?format=json".format(REGISTRY_API_BASE, registry_id)
+    res = requests.get(url)
+    res.raise_for_status()
+    md = json.loads(res.text)
+    nuxeo_path = md['harvest_extra_data']
+
+    if nuxeo_path:
+        return nuxeo_path
+    else:
+        return None

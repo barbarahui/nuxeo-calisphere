@@ -20,9 +20,10 @@ CHILD_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' AND ecm:currentLi
 
 class DeepHarvestNuxeo(object):
     ''' 
-    deep harvest of nuxeo content for publication in Calisphere
+    tools for extracting Nuxeo content
     '''
-    def __init__(self, path, s3_bucket_mediajson='static.ucldc.cdlib.org/media_json', **pynux_conf):
+    # FIXME don't need s3_bucket_mediajson parameter anymore
+    def __init__(self, path, s3_bucket_mediajson='', **pynux_conf):
         # get configuration and initialize pynux.utils.Nuxeo
         self.nx = None
         if 'pynuxrc' in pynux_conf:
