@@ -20,6 +20,7 @@ setup(
         'https://github.com/barbarahui/ucldc-iiif/archive/master.zip#egg=ucldc-iiif'
     ],
     install_requires=[
+        'argparse',
         'boto',
         'pynux',
         'python-magic',
