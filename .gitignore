@@ -7,3 +7,5 @@ deepharvest/deepharvestenv/
 build/
 reports/
 logs/
+deepharvestenv/
+kakadu/

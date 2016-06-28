@@ -32,5 +32,3 @@ If you want to do a **clean restash** of all files, even if they already exist o
     $ python s3stash/stash_collection.py 198 --replace
     
 You should see some output as the script is running and then a summary of what happened at the end.      
-    
-
