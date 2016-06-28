@@ -13,7 +13,7 @@ coming soon...
 
 How to process and stash all necessary content on S3 for deep harvesting a collection:
 
-First, login to nuxeo-stg.registry.org and the `registry` role account
+First, login to registry.cdlib.org and the `registry` role account
     
 Then, say you wanted to stash the collection with a registry ID of 198, and stash only new object files:
     
