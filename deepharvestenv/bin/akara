@@ -1,0 +1,4 @@
+#!/apps/registry/nuxeo-calisphere/deepharvestenv/bin/python
+# EASY-INSTALL-SCRIPT: 'Akara==2.0.0a4','akara'
+__requires__ = 'Akara==2.0.0a4'
+__import__('pkg_resources').run_script('Akara==2.0.0a4', 'akara')

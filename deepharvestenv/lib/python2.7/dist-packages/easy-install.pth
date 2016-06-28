@@ -1,0 +1,12 @@
+import sys; sys.__plen = len(sys.path)
+./UCLDC_Deep_Harvester-0.0.3-py2.7.egg
+./Akara-2.0.0a4-py2.7.egg
+./jsonpath-0.54-py2.7.egg
+./CouchDB-1.0.1-py2.7.egg
+./python_magic-0.4.11-py2.7.egg
+./pynux-0.0.2-py2.7.egg
+./boto-2.40.0-py2.7.egg
+./argparse-1.4.0-py2.7.egg
+./requests-2.10.0-py2.7.egg
+./ucldc_iiif-0.0.1-py2.7.egg
+import sys; new=sys.path[sys.__plen:]; del sys.path[sys.__plen:]; p=getattr(sys,'__egginsert',0); sys.path[p:p]=new; sys.__egginsert = p+len(new)
