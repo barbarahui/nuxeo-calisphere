@@ -112,7 +112,9 @@ def main(argv=None):
     if nxpath is None:
         print "No record found for registry_id: {}".format(registry_id)
         sys.exit()
-    logger.info('nuxeo_path: {}'.format(nxpath))
+    info = 'nuxeo_path: {}'.format(nxpath)
+    logger.info(info)
+    print info, '\n'
  
     stash = Stash(nxpath, pynuxrc, replace)
 
