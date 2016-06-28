@@ -13,18 +13,24 @@ coming soon...
 
 How to process and stash all necessary content on S3 for deep harvesting a collection:
 
-First, login to registry.cdlib.org and the `registry` role account
+First, login to registry-stg.cdlib.org and the `registry` role account. Note: you must be on the CDL network to do this, i.e. you may need to login to the CDL bastion server first.
+
+    $ ssh registry-stg.cdlib.org 
+    $ sudo su - registry
     
-Then, say you wanted to stash the collection with a registry ID of 198, and stash only new object files:
-    
-    $ cd nuxeo-calisphere
-    $ . deepharvestenv/bin/activate
-    $ python s3stash/stash_collection.py 198 # where '198' is the registry ID
-   
-If you want to do a clean restash all files, even if they already exist on S3:
+Then, activate the deepharvestenv virtualenv:
 
     $ cd nuxeo-calisphere
     $ . deepharvestenv/bin/activate
-    $ python s3stash/stash_collection.py 198 replace
+        
+Then, say you wanted to stash the collection with a registry ID of 198, and stash **only new** object files:
+
+    $ python s3stash/stash_collection.py 198 # where '198' is the registry ID
     
-You should see some output as the script is running and then a summary of what happened at the end.
+If you want to do a **clean restash** of all files, even if they already exist on S3:
+
+    $ python s3stash/stash_collection.py 198 --replace
+    
+You should see some output as the script is running and then a summary of what happened at the end.      
+    
+
