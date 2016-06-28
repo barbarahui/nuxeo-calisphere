@@ -32,3 +32,10 @@ If you want to do a **clean restash** of all files, even if they already exist o
     $ python s3stash/stash_collection.py 198 --replace
     
 You should see some output as the script is running and then a summary of what happened at the end.      
+
+### Running deep harvest for a large collection
+
+If you're running a deep harvest for a very large collection with lots of files to stash, you might want to use the **atnow** script so that you don't have to worry about the terminal hanging up on you while the job is in process.
+
+Note: right now there is a problem setting the environment variables correctly when using atnow. BH is trying to figure it out -- ask her if it's working yet :-)    
+
