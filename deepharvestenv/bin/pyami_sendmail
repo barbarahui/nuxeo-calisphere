@@ -1,4 +1,0 @@
-#!/apps/registry/nuxeo-calisphere/deepharvestenv/bin/python
-# EASY-INSTALL-SCRIPT: 'boto==2.40.0','pyami_sendmail'
-__requires__ = 'boto==2.40.0'
-__import__('pkg_resources').run_script('boto==2.40.0', 'pyami_sendmail')

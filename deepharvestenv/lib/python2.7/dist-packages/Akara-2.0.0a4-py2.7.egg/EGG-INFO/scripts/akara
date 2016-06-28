@@ -1,9 +1,0 @@
-#!/apps/registry/nuxeo-calisphere/deepharvestenv/bin/python
-
-# Command-line program to manage an Akara server.
-# Use "--help" to get usage information.
-
-import sys
-from akara import commandline
-
-commandline.main(sys.argv)
