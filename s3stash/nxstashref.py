@@ -95,10 +95,10 @@ class NuxeoStashRef(object):
        """
        return s3stash.s3tools.is_s3_stashed(self.bucket, self.uid, self.region)
 
-    def _s3_stash(self):
+    def _s3_stash(self, filepath, mimetype):
        """ Stash file in S3 bucket. 
        """
-       return s3stash.s3tools.s3stash(self.source_filepath, self.bucket, self.uid, self.region, self.source_mimetype, self.replace)
+       return s3stash.s3tools.s3stash(filepath, self.bucket, self.uid, self.region, mimetype, self.replace)
 
 def main(argv=None):
     pass

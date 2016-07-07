@@ -83,7 +83,7 @@ class NuxeoStashImage(NuxeoStashRef):
             return self.report
 
         # stash in s3
-        stashed, s3_report = self._s3_stash()
+        stashed, s3_report = self._s3_stash(self.jp2_filepath, 'image/jp2')
         self._update_report('s3_stash', s3_report)
         self._update_report('stashed', stashed)
  
