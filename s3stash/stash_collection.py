@@ -66,10 +66,10 @@ class Stash(object):
         ''' stash thumbnail images for Nuxeo files of type 'file', 'audio', or 'video' for a collection '''
         report = {}
         for obj in self.objects:
-            nxstash = NuxeoStashThumb(obj['path'], IMAGE_BUCKET, IMAGE_REGION, self.pynuxrc, self.replace)
+            nxstash = NuxeoStashThumb(obj['path'], THUMB_BUCKET, THUMB_REGION, self.pynuxrc, self.replace)
             report[nxstash.uid] = nxstash.nxstashref()
             for c in self.dh.fetch_components(obj):
-                nxstash = NuxeoStashThumb(c['path'], IMAGE_BUCKET, IMAGE_REGION, self.pynuxrc, self.replace)
+                nxstash = NuxeoStashThumb(c['path'], THUMB_BUCKET, THUMB_REGION, self.pynuxrc, self.replace)
                 report[nxstash.uid] = nxstash.nxstashref()
 
         return report
@@ -78,7 +78,7 @@ class Stash(object):
         ''' create and stash media.json files for a nuxeo collection '''
         report = {}
         for obj in self.objects:
-            nxstash = NuxeoStashMediaJson(obj['path'], IMAGE_BUCKET, IMAGE_REGION, self.pynuxrc, self.replace)
+            nxstash = NuxeoStashMediaJson(obj['path'], MEDIAJSON_BUCKET, MEDIAJSON_REGION, self.pynuxrc, self.replace)
             report[nxstash.uid] = nxstash.nxstashref()
 
         return report
