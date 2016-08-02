@@ -43,6 +43,11 @@ class NuxeoStashImage(NuxeoStashRef):
             self._remove_tmp()
             return self.report
            
+        self.has_file = self.dh.has_file(self.metadata)
+        self._update_report('has_file', self.has_file)
+        if not self.has_file:
+            return self.report
+
         self.file_info = self._get_file_info(self.metadata) 
         self.source_mimetype = self.file_info['mimetype']
         passed, precheck_msg = self.convert._pre_check(self.source_mimetype)

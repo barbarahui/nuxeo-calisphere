@@ -78,15 +78,17 @@ class NuxeoStashRef(object):
         if file_content is None:
             return None
         else:
-            url = file_content['data']
+            url = file_content['data'].strip()
             url = url.replace('/nuxeo/', '/Nuxeo/')
-            info['url'] = url 
-            info['mimetype'] = file_content['mime-type']
+            info['url'] = url.strip() 
+            info['mimetype'] = file_content['mime-type'].strip()
+            info['filename'] = file_content['name'].strip()
 
-        try:
-            info['filename'] = metadata['properties']['file:filename']
-        except KeyError:
-            raise KeyError("Nuxeo object metadata does not contain 'properties/file:filename' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'file'")
+        if not info['filename']: 
+            try:
+                info['filename'] = metadata['properties']['file:filename']
+            except KeyError:
+                raise KeyError("Nuxeo object metadata does not contain 'properties/file:filename' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'file'")
 
         return info
 

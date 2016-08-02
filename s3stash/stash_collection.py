@@ -16,7 +16,7 @@ IMAGE_REGION = 'us-west-2'
 FILE_BUCKET = 'ucldc-nuxeo-ref-media'
 FILE_REGION = 'us-west-2'
 THUMB_BUCKET = 'static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media'
-THUMB_REGION = 'us-east-1',
+THUMB_REGION = 'us-east-1'
 MEDIAJSON_BUCKET = 'static.ucldc.cdlib.org/media_json'
 MEDIAJSON_REGION = 'us-east-1'
 
