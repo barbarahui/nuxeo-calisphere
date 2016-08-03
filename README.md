@@ -25,11 +25,11 @@ Then, activate the deepharvestenv virtualenv:
         
 Then, say you wanted to stash the collection with a registry ID of 198, and stash **only new** object files:
 
-    $ python s3stash/stash_collection.py 198 # where '198' is the registry ID
+    $ python s3stash/stash_collection.py --pynuxrc ~/.pynuxrc-prod 198 # where '198' is the registry ID
     
 If you want to do a **clean restash** of all files, even if they already exist on S3:
 
-    $ python s3stash/stash_collection.py 198 --replace
+    $ python s3stash/stash_collection.py --pynuxrc ~/.pynuxrc-prod 198 --replace
     
 You should see some output as the script is running and then a summary of what happened at the end.      
 
