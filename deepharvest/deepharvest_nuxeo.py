@@ -35,7 +35,7 @@ class DeepHarvestNuxeo(object):
         else:
             self.nx = utils.Nuxeo(conf={}) 
 
-        self.path = urllib.quote(path)
+        self.path = path
         self.uid = self.nx.get_uid(self.path)
         self.s3_bucket_mediajson = s3_bucket_mediajson
 

@@ -22,7 +22,7 @@ class NuxeoStashRef(object):
        
         self.logger = logging.getLogger(__name__)
         
-        self.path = path
+        self.path = path.encode('utf8', 'replace')
         self.bucket = bucket
         self.pynuxrc = pynuxrc
         self.region = region
