@@ -7,9 +7,8 @@ import subprocess
 import shutil
 
 class NuxeoStashThumb(NuxeoStashRef):
-    '''
-        Class for fetching a Nuxeo object of type `SampleCustomFile`, 
-        creating a thumbnail image of the file, and stashing in S3.
+    ''' 
+    Class for stashing a thumbnail on S3 for a given Nuxeo doc
     '''
     def __init__(self, path, bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media', region='us-east-1', pynuxrc='~/.pynuxrc', replace=False):
        super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc, replace)
@@ -19,14 +18,18 @@ class NuxeoStashThumb(NuxeoStashRef):
         return self.nxstashthumb()
 
     def nxstashthumb(self):
-        ''' download file, create thumbnail version and stash in s3 '''
+       ''' stash thumbnail version of file on s3 '''
+       self._update_report('stashed', False)
 
-        self._update_report('stashed', False)
+       if self.calisphere_type == 'file':
+           return self.stash_file_thumb() 
+       elif self.calisphere_type == 'video':
+           return self.stash_video_thumb() 
+       else:
+           self._update_report('calisphere_type', self.calisphere_type)
+           return self.report
 
-        if not self.calisphere_type == 'file':
-            self._update_report('calisphere_type', self.calisphere_type)
-            return self.report
-
+    def stash_file_thumb(self):
         self.has_file = self.dh.has_file(self.metadata)
         self._update_report('has_file', self.has_file)
         if not self.has_file:
@@ -35,7 +38,7 @@ class NuxeoStashThumb(NuxeoStashRef):
         # get file details
         self.file_info = self._get_file_info(self.metadata)
         self.source_download_url = self.file_info['url']
-        self.source_mimetype = 'image/png' 
+        self.source_mimetype = 'image/png'
         self.source_filename = self.file_info['filename']
         self.source_filename = self.source_filename.replace(' ', '_')
         self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)
@@ -67,6 +70,49 @@ class NuxeoStashThumb(NuxeoStashRef):
 
         self._remove_tmp()
         return self.report
+
+    def stash_video_thumb(self):
+        # check we have a storyboard 
+        self.has_storyboard = self.has_storyboard()
+        self._update_report('has_storyboard', self.has_storyboard)
+        if not self.has_storyboard:
+            return self.report
+
+        # get the download url for the 5th storyboard image
+        try:
+            self.source_download_url = self.metadata['properties']['vid:storyboard'][5]['content']['data'] 
+            self.source_download_url = self.source_download_url.replace('/nuxeo/', '/Nuxeo/')
+            self._update_report('source_download_url', self.source_download_url)
+            self.source_filename = self.metadata['properties']['vid:storyboard'][5]['content']['name']
+            self._update_report('source_filename', self.source_filename)
+            self.source_mimetype = self.metadata['properties']['vid:storyboard'][5]['content']['mime-type']
+            self._update_report('source_mimetype', self.source_mimetype)
+        except KeyError:
+            raise KeyError("Nuxeo doc metadata does not contain a 5th storyboard element.")
+
+        # download the image 
+        self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)
+        self._update_report('source_filepath', self.source_filepath) 
+        self._download_nuxeo_file() 
+
+        # stash thumbnail in s3
+        stashed, s3_report = self._s3_stash(self.source_filepath, self.source_mimetype)
+        self._update_report('s3_stash', s3_report)
+        self._update_report('stashed', stashed)
+
+        #self._remove_tmp()
+        return self.report
+    
+    def has_storyboard(self):
+        try:
+            storyboard = self.metadata['properties']['vid:storyboard']
+        except KeyError:
+            raise KeyError("Nuxeo object metadata does not contain 'vid:storyboard' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'video'")
+
+        if storyboard is None:
+            return False
+        else:
+            return True
 
     def pdf_to_thumb(self, input_path, output_path):
         '''
