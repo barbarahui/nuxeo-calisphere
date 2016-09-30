@@ -18,18 +18,13 @@ class NuxeoStashThumb(NuxeoStashRef):
         return self.nxstashthumb()
 
     def nxstashthumb(self):
-       ''' stash thumbnail version of file on s3 '''
-       self._update_report('stashed', False)
+        ''' stash thumbnail version of file on s3 '''
+        self._update_report('stashed', False)
 
-       if self.calisphere_type == 'file':
-           return self.stash_file_thumb() 
-       elif self.calisphere_type == 'video':
-           return self.stash_video_thumb() 
-       else:
-           self._update_report('calisphere_type', self.calisphere_type)
-           return self.report
+        if self.calisphere_type not in ('file', 'video'):
+            self._update_report('calisphere_type', self.calisphere_type)
+            return self.report
 
-    def stash_file_thumb(self):
         self.has_file = self.dh.has_file(self.metadata)
         self._update_report('has_file', self.has_file)
         if not self.has_file:
@@ -38,7 +33,10 @@ class NuxeoStashThumb(NuxeoStashRef):
         # get file details
         self.file_info = self._get_file_info(self.metadata)
         self.source_download_url = self.file_info['url']
-        self.source_mimetype = 'image/png'
+        if self.calisphere_type == 'file':
+            self.source_mimetype = 'image/png'
+        elif self.calisphere_type == 'video':
+            self.source_mimetype = 'image/jpg'
         self.source_filename = self.file_info['filename']
         self.source_filename = self.source_filename.replace(' ', '_')
         self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)
@@ -54,7 +52,11 @@ class NuxeoStashThumb(NuxeoStashRef):
         self._download_nuxeo_file()
 
         # create thumbnail
-        thumb_created, thumb_msg = self.pdf_to_thumb(self.source_filepath, self.thumb_filepath)
+        if self.calisphere_type == 'file':
+            thumb_created, thumb_msg = self.pdf_to_thumb(self.source_filepath, self.thumb_filepath)
+        elif self.calisphere_type == 'video':
+            thumb_created, thumb_msg = self.video_to_thumb(self.source_filepath, self.thumb_filepath)
+
         self._update_report('thumb_created', {'thumb_created': thumb_created, 'msg': thumb_msg})
         if not thumb_created:
             self._remove_tmp()
@@ -69,50 +71,44 @@ class NuxeoStashThumb(NuxeoStashRef):
         self._update_report('stashed', stashed)
 
         self._remove_tmp()
+
         return self.report
 
-    def stash_video_thumb(self):
-        # check we have a storyboard 
-        self.has_storyboard = self.has_storyboard()
-        self._update_report('has_storyboard', self.has_storyboard)
-        if not self.has_storyboard:
-            return self.report
 
-        # get the download url for the 5th storyboard image
-        try:
-            self.source_download_url = self.metadata['properties']['vid:storyboard'][5]['content']['data'] 
-            self.source_download_url = self.source_download_url.replace('/nuxeo/', '/Nuxeo/')
-            self._update_report('source_download_url', self.source_download_url)
-            self.source_filename = self.metadata['properties']['vid:storyboard'][5]['content']['name']
-            self._update_report('source_filename', self.source_filename)
-            self.source_mimetype = self.metadata['properties']['vid:storyboard'][5]['content']['mime-type']
-            self._update_report('source_mimetype', self.source_mimetype)
-        except KeyError:
-            raise KeyError("Nuxeo doc metadata does not contain a 5th storyboard element.")
+    def video_to_thumb(self, input_path, output_path):
+        '''
+           generate thumbnail image for video
+           use ffmpeg to grab center frame from video
+        '''
+        to_thumb = False
 
-        # download the image 
-        self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)
-        self._update_report('source_filepath', self.source_filepath) 
-        self._download_nuxeo_file() 
+        duration = subprocess.check_output(
+            [
+                '/usr/local/bin/ffprobe', 
+                '-v', 'fatal', 
+                '-show_entries', 'format=duration', 
+                '-of', 'default=nw=1:nk=1', 
+                input_path
+            ]
+        )
 
-        # stash thumbnail in s3
-        stashed, s3_report = self._s3_stash(self.source_filepath, self.source_mimetype)
-        self._update_report('s3_stash', s3_report)
-        self._update_report('stashed', stashed)
+        midpoint = float(duration.strip()) / 2
 
-        #self._remove_tmp()
-        return self.report
-    
-    def has_storyboard(self):
-        try:
-            storyboard = self.metadata['properties']['vid:storyboard']
-        except KeyError:
-            raise KeyError("Nuxeo object metadata does not contain 'vid:storyboard' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'video'")
-
-        if storyboard is None:
-            return False
-        else:
-            return True
+        subprocess.check_output(
+            [
+                '/usr/local/bin/ffmpeg',
+                '-v', 'fatal',
+                '-i', input_path,
+                '-vframes', '1', # output 1 frame
+                '-ss', str(midpoint),
+                output_path
+            ]
+        )
+        to_thumb = True
+        msg = "Used ffmpeg to convert {} to {}".format(input_path, output_path)
+        self.logger.info(msg)
+       
+        return to_thumb, msg      
 
     def pdf_to_thumb(self, input_path, output_path):
         '''
