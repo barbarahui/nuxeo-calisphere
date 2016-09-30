@@ -98,9 +98,9 @@ class NuxeoStashThumb(NuxeoStashRef):
             [
                 '/usr/local/bin/ffmpeg',
                 '-v', 'fatal',
+                '-ss', str(midpoint),
                 '-i', input_path,
                 '-vframes', '1', # output 1 frame
-                '-ss', str(midpoint),
                 output_path
             ]
         )
