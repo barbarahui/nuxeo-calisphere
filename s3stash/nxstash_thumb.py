@@ -13,6 +13,8 @@ class NuxeoStashThumb(NuxeoStashRef):
     def __init__(self, path, bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media', region='us-east-1', pynuxrc='~/.pynuxrc', replace=False):
        super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc, replace)
        self.magick_convert_location = '/usr/local/bin/convert'
+       self.ffmpeg_location = '/usr/local/bin/ffmpeg'
+       self.ffprobe_location = '/usr/local/bin/ffprobe'
 
     def nxstashref(self):
         return self.nxstashthumb()
@@ -84,7 +86,7 @@ class NuxeoStashThumb(NuxeoStashRef):
 
         duration = subprocess.check_output(
             [
-                '/usr/local/bin/ffprobe', 
+                self.ffprobe_location, 
                 '-v', 'fatal', 
                 '-show_entries', 'format=duration', 
                 '-of', 'default=nw=1:nk=1', 
@@ -96,7 +98,7 @@ class NuxeoStashThumb(NuxeoStashRef):
 
         subprocess.check_output(
             [
-                '/usr/local/bin/ffmpeg',
+                self.ffmpeg_location,
                 '-v', 'fatal',
                 '-ss', str(midpoint),
                 '-i', input_path,
