@@ -68,7 +68,8 @@ class NuxeoStashImage(NuxeoStashRef):
 
         # get file details
         self.source_download_url = self.file_info['url']
-        self.source_filename = self.file_info['filename']
+        #self.source_filename = self.file_info['filename']
+        self.source_filename = 'sourcefile'
         self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)
 
         self._update_report('source_download_url', self.source_download_url)
