@@ -23,19 +23,19 @@ MEDIAJSON_REGION = 'us-east-1'
 _loglevel_ = 'INFO'
 
 class Stash(object):
-    ''' 
-        stash various files on s3 for a Nuxeo collection 
-        in preparation for harvesting into Calisphere 
-    '''   
+    '''
+        stash various files on s3 for a Nuxeo collection
+        in preparation for harvesting into Calisphere
+    '''
     def __init__(self, path, pynuxrc, replace=False, loglevel=_loglevel_):
         self.logger = logging.getLogger(__name__)
-        
-        self.path = path 
+
+        self.path = path
         self.pynuxrc = pynuxrc
         self.replace = replace
 
         self.dh = DeepHarvestNuxeo(self.path, '', pynuxrc=self.pynuxrc)
- 
+
         self.objects = self.dh.fetch_objects()
 
     def images(self):
@@ -60,7 +60,7 @@ class Stash(object):
                 nxstash = NuxeoStashFile(c['path'], FILE_BUCKET, FILE_REGION, self.pynuxrc, self.replace)
                 report[nxstash.uid] = nxstash.nxstashref()
 
-        return report 
+        return report
 
     def thumbnails(self):
         ''' stash thumbnail images for Nuxeo files of type 'file', 'audio', or 'video' for a collection '''
@@ -83,21 +83,7 @@ class Stash(object):
 
         return report
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(description='Deep harvest a Nuxeo collection')
-    parser.add_argument('registry_id', help='UCLDC Registry ID')
-    parser.add_argument('--pynuxrc', default='~/.pynuxrc', help='rc file for use by pynux')
-    parser.add_argument('--replace', action='store_true', help='replace files on s3 if they already exist')
-    parser.add_argument('--loglevel', default=_loglevel_)
-
-    if argv is None:
-        argv = parser.parse_args()
-
-    registry_id = argv.registry_id
-    pynuxrc = argv.pynuxrc
-    replace = argv.replace
-    loglevel = argv.loglevel
-
+def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     # set up logging
     logfile = 'logs/stash_collection_{}'.format(registry_id)
     numeric_level = getattr(logging, loglevel, None)
@@ -115,12 +101,12 @@ def main(argv=None):
     info = 'nuxeo_path: {}'.format(nxpath)
     logger.info(info)
     print info, '\n'
- 
+
     stash = Stash(nxpath, pynuxrc, replace)
 
     # stash images for use with iiif server
     print 'stashing images...'
-    image_report = stash.images()    
+    image_report = stash.images()
     info = 'finished stashing images'
     logger.info(info)
     print info
@@ -128,7 +114,7 @@ def main(argv=None):
     with open(reportfile, 'w') as f:
         json.dump(image_report, f, sort_keys=True, indent=4)
     print "report:\t{}\n".format(reportfile)
- 
+
     # stash text, audio, video
     print 'stashing non-image files (text, audio, video)...'
     file_report = stash.files()
@@ -138,7 +124,7 @@ def main(argv=None):
     reportfile = "reports/files-{}.json".format(registry_id)
     with open(reportfile, 'w') as f:
         json.dump(file_report, f, sort_keys=True, indent=4)
-    print "report:\t{}\n".format(reportfile) 
+    print "report:\t{}\n".format(reportfile)
 
     # stash thumbnails for text, audio, video
     print 'stashing thumbnails for non-image files (text, audio, video)...'
@@ -164,7 +150,7 @@ def main(argv=None):
 
     # print some information about how it went
     images_stashed = len([key for key, value in image_report.iteritems() if value['stashed']])
-    files_stashed = len([key for key, value in file_report.iteritems() if value['stashed']])    
+    files_stashed = len([key for key, value in file_report.iteritems() if value['stashed']])
     thumbs_stashed = len([key for key, value in thumb_report.iteritems() if value['stashed']])
     mediajson_stashed = len([key for key, value in mediajson_report.iteritems() if value['stashed']])
 
@@ -177,4 +163,20 @@ def main(argv=None):
     print "media.json files stashed:       {}".format(mediajson_stashed)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description='Deep harvest a Nuxeo collection')
+    parser.add_argument('registry_id', help='UCLDC Registry ID')
+    parser.add_argument('--pynuxrc', default='~/.pynuxrc', help='rc file for use by pynux')
+    parser.add_argument('--replace', action='store_true', help='replace files on s3 if they already exist')
+    parser.add_argument('--loglevel', default=_loglevel_)
+
+    argv = parser.parse_args()
+
+    registry_id = argv.registry_id
+    pynuxrc = argv.pynuxrc
+    replace = argv.replace
+    loglevel = argv.loglevel
+
+    sys.exit(main(registry_id,
+                  pytnuxrc=pynuxrc,
+                  replace=replace,
+                  loglevel=loglevel))
