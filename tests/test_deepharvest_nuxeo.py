@@ -64,15 +64,6 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         #components = self.dh.fetch_components(obj) # mock so we don't actually go over network
         #self.assertEqual(len(components), 61) # FIXME bad test! 
 
-    def test_get_parent_metadata(self):
-        ''' test getting top-level (parent) metadata for nuxeo object '''
-        obj = json.load(open(self.test_simple_object))
-        metadata = self.dh.get_parent_metadata(obj)
-        self.assertEqual(metadata['label'], u'Wooden box filled with vegetables, fruits, french fries, pie and shrimp')
-        self.assertEqual(metadata['id'], u'fb0198b6-ffe6-483a-bb04-ef6f6c3504af')
-        self.assertEqual(metadata['href'], u'https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/fb0198b6-ffe6-483a-bb04-ef6f6c3504af/file:content/AlarmtillRGB.tif')
-        self.assertEqual(metadata['format'], 'image')
-
     def test_get_metadata_no_file(self):
         ''' test that getting the metadata for an object with no file results in empty id and format '''
         # TODO rewrite this test to not go against live data
@@ -82,21 +73,6 @@ class DeepHarvestNuxeoSimpleTestCase(unittest.TestCase):
         self.assertNotIn('id', metadata)
         self.assertNotIn('format', metadata)
         '''
-
-    def test_get_component_metadata(self):
-        ''' test getting metadata for a component of a complex object '''
-        component_obj = json.load(open(self.test_component_object))
-        metadata = self.dh.get_component_metadata(component_obj) 
-        self.assertEqual(metadata['label'], u'UCM_LI_2003_063B_K.tif')
-        self.assertEqual(metadata['id'], u'510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9')
-        self.assertEqual(metadata['href'], u'https://nuxeo.cdlib.org/nuxeo/nxbigfile/default/510d8b6e-8ad3-48c9-a1f7-5e522ffa9fe9/file:content/UCM_LI_2003_063B_K.tif')
-        self.assertEqual(metadata['format'], 'image')
-
-    def test_get_ucldc_schema_properties(self):
-        ''' test getting ucldc_schema metadata for object '''
-        obj = json.load(open(self.test_nuxeo_full_md_transcript))
-        ucldc_md = self.dh.get_ucldc_schema_properties(obj)
-        self.assertEqual(ucldc_md['transcription'], obj['properties']['ucldc_schema:transcription'])
 
     def test_get_component_metadata_with_transcript(self):
         ''' test getting metadata for a component that has a transcription '''

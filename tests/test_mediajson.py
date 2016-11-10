@@ -34,7 +34,6 @@ class MediaJsonTestCase(unittest.TestCase):
         mj = mediajson.MediaJson()
         media_json = mj.create_media_json(parent_md, component_md)
         self.assertIn('structMap', media_json)
-        self.assertNotIn('extra_field', media_json['structMap'][0])
         self.assertEqual(media_json['structMap'][0]['href'], component_md[0]['href'])
         self.assertEqual(media_json['structMap'][0]['format'], component_md[0]['format'])
         self.assertEqual(media_json['structMap'][0]['label'], component_md[0]['label'])
