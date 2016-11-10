@@ -29,7 +29,7 @@ class NuxeoStashRef(object):
         self.replace = replace
         self.logger.info("initialized NuxeoStashRef with path {}".format(self.path))
 
-        self.nx = utils.Nuxeo(rcfile=open(expanduser(self.pynuxrc), 'r'))
+        self.nx = utils.Nuxeo(rcfile=expanduser(self.pynuxrc))
         self.uid = self.nx.get_uid(urllib.quote(self.path))
         self.metadata = self.nx.get_metadata(path=urllib.quote(self.path))
 
