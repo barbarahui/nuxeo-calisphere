@@ -28,7 +28,7 @@ class DeepHarvestNuxeo(object):
         self.nx = None
         if 'pynuxrc' in pynux_conf:
             pynuxrc = pynux_conf['pynuxrc']
-            self.nx = utils.Nuxeo(rcfile=expanduser(pynuxrc))
+            self.nx = utils.Nuxeo(rcfile=open(expanduser(pynuxrc), 'r'))
         elif 'conf_pynux' in pynux_conf:
             conf_pynux = pynux_conf['conf_pynux']
             self.nx = utils.Nuxeo(conf=conf_pynux)
