@@ -17,7 +17,7 @@ setup(
     dependency_links=[
         'https://github.com/ucldc/pynux/archive/master.zip#egg=pynux',
         'https://github.com/mredar/jsonpath/archive/master.zip#egg=jsonpath',
-        'https://github.com/barbarahui/ucldc-iiif/archive/master.zip#egg=ucldc-iiif'
+        'https://github.com/mredar/ucldc-iiif/archive/master.zip#egg=ucldc-iiif'
     ],
     install_requires=[
         'argparse',
