@@ -165,7 +165,7 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     info = 'finished stashing thumbnails'
     logger.info(info)
     print info
-    report_file = "reports/thumbs-{}.json".format(registry_id)
+    report_file = "thumbs-{}.json".format(registry_id)
     s3_report(report_file, thumb_report)
     print "report:\t{}\n".format(report_file)
 
@@ -175,7 +175,7 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     info = 'finished stashing media.json'
     logger.info(info)
     print info
-    report_file = "reports/mediajson-{}.json".format(registry_id)
+    report_file = "mediajson-{}.json".format(registry_id)
     s3_report(report_file, mediajson_report)
     print "report:\t{}\n".format(report_file)
 
