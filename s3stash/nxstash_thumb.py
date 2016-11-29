@@ -13,7 +13,8 @@ class NuxeoStashThumb(NuxeoStashRef):
     '''
     def __init__(self, path, bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media', region='us-east-1', pynuxrc='~/.pynuxrc', replace=False):
        super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc, replace)
-       self.magick_convert_location = '/usr/bin/convert'
+       self.magick_convert_location = os.environ.get('PATH_MAGICK_CONVERT',
+                                                     '/usr/local/bin/convert')
 
     def nxstashref(self):
         return self.nxstashthumb()
