@@ -15,8 +15,10 @@ class NuxeoStashThumb(NuxeoStashRef):
        super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc, replace)
        self.magick_convert_location = os.environ.get('PATH_MAGICK_CONVERT',
                                                      '/usr/local/bin/convert')
-       self.ffmpeg_location = '/usr/local/bin/ffmpeg'
-       self.ffprobe_location = '/usr/local/bin/ffprobe'
+       self.ffmpeg_location = os.environ.get('PATH_FFMPEG',
+                                             '/usr/local/bin/ffmpeg')
+       self.ffprobe_location = os.environ.get('PATH_FFPROBE',
+                                              '/usr/local/bin/ffprobe')
 
     def nxstashref(self):
         return self.nxstashthumb()
