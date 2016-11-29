@@ -7,12 +7,14 @@ import subprocess
 import shutil
 
 class NuxeoStashThumb(NuxeoStashRef):
-    ''' 
-    Class for stashing a thumbnail on S3 for a given Nuxeo doc
+    '''
+        Class for fetching a Nuxeo object of type `SampleCustomFile`,
+        creating a thumbnail image of the file, and stashing in S3.
     '''
     def __init__(self, path, bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media', region='us-east-1', pynuxrc='~/.pynuxrc', replace=False):
        super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc, replace)
-       self.magick_convert_location = '/usr/local/bin/convert'
+       self.magick_convert_location = os.environ.get('PATH_MAGICK_CONVERT',
+                                                     '/usr/local/bin/convert')
        self.ffmpeg_location = '/usr/local/bin/ffmpeg'
        self.ffprobe_location = '/usr/local/bin/ffprobe'
 
@@ -39,6 +41,7 @@ class NuxeoStashThumb(NuxeoStashRef):
             self.source_mimetype = 'image/png'
         elif self.calisphere_type == 'video':
             self.source_mimetype = 'image/jpg'
+
         self.source_filename = self.file_info['filename']
         self.source_filename = self.source_filename.replace(' ', '_')
         self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)

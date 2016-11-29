@@ -4,6 +4,7 @@ import sys
 import argparse
 import logging
 import json
+import boto
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
 import s3stash.s3tools
 from s3stash.nxstashref_image import NuxeoStashImage
@@ -19,6 +20,7 @@ THUMB_BUCKET = 'static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media'
 THUMB_REGION = 'us-east-1'
 MEDIAJSON_BUCKET = 'static.ucldc.cdlib.org/media_json'
 MEDIAJSON_REGION = 'us-east-1'
+REPORT_BUCKET = 'static.ucldc.cdlib.org/deep-harvesting/reports'
 
 _loglevel_ = 'INFO'
 
@@ -100,19 +102,31 @@ class Stash(object):
         return report
 
 
+def s3_report(report_file, report):
+    '''Save s3 report'''
+    S3_conn = boto.connect_s3()
+    S3_bucket = S3_conn.get_bucket(REPORT_BUCKET)
+    report_key = boto.s3.key.Key(S3_bucket)
+    report_key.key = report_file
+    # TODO: set type to application/json
+    report_key.set_contents_from_string(
+        json.dumps(report, sort_keys=True, indent=4)
+    )
+
+
 def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     # set up logging
     logfile = 'logs/stash_collection_{}'.format(registry_id)
     numeric_level = getattr(logging, loglevel, None)
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
+    # log to stdout/err to capture in parent process log
+    # TODO: save log to S3
     logging.basicConfig(
         level=numeric_level,
-        filename=logfile,
         format='%(asctime)s (%(name)s) [%(levelname)s]: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
     logger = logging.getLogger(__name__)
-    print "\nlogfile: {}\n".format(logfile)
 
     # get nuxeo path
     nxpath = s3stash.s3tools.get_nuxeo_path(registry_id)
@@ -131,10 +145,9 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     info = 'finished stashing images'
     logger.info(info)
     print info
-    reportfile = "reports/images-{}.json".format(registry_id)
-    with open(reportfile, 'w') as f:
-        json.dump(image_report, f, sort_keys=True, indent=4)
-    print "report:\t{}\n".format(reportfile)
+    report_file = "images-{}.json".format(registry_id)
+    s3_report(report_file, image_report)
+    print "report:\t{}\n".format(report_file)
 
     # stash text, audio, video
     print 'stashing non-image files (text, audio, video)...'
@@ -142,10 +155,9 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     info = 'finished stashing files'
     logger.info(info)
     print info
-    reportfile = "reports/files-{}.json".format(registry_id)
-    with open(reportfile, 'w') as f:
-        json.dump(file_report, f, sort_keys=True, indent=4)
-    print "report:\t{}\n".format(reportfile)
+    report_file = "files-{}.json".format(registry_id)
+    s3_report(report_file, file_report)
+    print "report:\t{}\n".format(report_file)
 
     # stash thumbnails for text, audio, video
     print 'stashing thumbnails for non-image files (text, audio, video)...'
@@ -153,10 +165,9 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     info = 'finished stashing thumbnails'
     logger.info(info)
     print info
-    reportfile = "reports/thumbs-{}.json".format(registry_id)
-    with open(reportfile, 'w') as f:
-        json.dump(thumb_report, f, sort_keys=True, indent=4)
-    print "report:\t{}\n".format(reportfile)
+    report_file = "thumbs-{}.json".format(registry_id)
+    s3_report(report_file, thumb_report)
+    print "report:\t{}\n".format(report_file)
 
     # stash media.json files
     print 'stashing media.json files for collection...'
@@ -164,10 +175,9 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     info = 'finished stashing media.json'
     logger.info(info)
     print info
-    reportfile = "reports/mediajson-{}.json".format(registry_id)
-    with open(reportfile, 'w') as f:
-        json.dump(mediajson_report, f, sort_keys=True, indent=4)
-    print "report:\t{}\n".format(reportfile)
+    report_file = "mediajson-{}.json".format(registry_id)
+    s3_report(report_file, mediajson_report)
+    print "report:\t{}\n".format(report_file)
 
     # print some information about how it went
     images_stashed = len(
@@ -180,6 +190,7 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
         key for key, value in mediajson_report.iteritems() if value['stashed']
     ])
 
+    # TODO: make sure this is in rqworker log
     print "SUMMARY:"
     print "objects processed:              {}".format(len(stash.objects))
     print "replaced existing files on s3:  {}".format(stash.replace)
@@ -210,4 +221,4 @@ if __name__ == "__main__":
 
     sys.exit(
         main(
-            registry_id, pytnuxrc=pynuxrc, replace=replace, loglevel=loglevel))
+            registry_id, pynuxrc=pynuxrc, replace=replace, loglevel=loglevel))
