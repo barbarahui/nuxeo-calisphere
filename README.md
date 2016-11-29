@@ -8,6 +8,8 @@ Code for prepping content in Nuxeo for Calisphere harvesting. This is known inte
 ## Installation
 
 coming soon...
+
+requires ffmpeg and ffprobe
     
 ## Deep harvest a collection
 
