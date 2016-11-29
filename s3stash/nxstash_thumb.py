@@ -7,23 +7,23 @@ import subprocess
 import shutil
 
 class NuxeoStashThumb(NuxeoStashRef):
-    '''
-        Class for fetching a Nuxeo object of type `SampleCustomFile`, 
-        creating a thumbnail image of the file, and stashing in S3.
+    ''' 
+    Class for stashing a thumbnail on S3 for a given Nuxeo doc
     '''
     def __init__(self, path, bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media', region='us-east-1', pynuxrc='~/.pynuxrc', replace=False):
        super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc, replace)
        self.magick_convert_location = '/usr/local/bin/convert'
+       self.ffmpeg_location = '/usr/local/bin/ffmpeg'
+       self.ffprobe_location = '/usr/local/bin/ffprobe'
 
     def nxstashref(self):
         return self.nxstashthumb()
 
     def nxstashthumb(self):
-        ''' download file, create thumbnail version and stash in s3 '''
-
+        ''' stash thumbnail version of file on s3 '''
         self._update_report('stashed', False)
 
-        if not self.calisphere_type == 'file':
+        if self.calisphere_type not in ('file', 'video'):
             self._update_report('calisphere_type', self.calisphere_type)
             return self.report
 
@@ -35,7 +35,10 @@ class NuxeoStashThumb(NuxeoStashRef):
         # get file details
         self.file_info = self._get_file_info(self.metadata)
         self.source_download_url = self.file_info['url']
-        self.source_mimetype = 'image/png' 
+        if self.calisphere_type == 'file':
+            self.source_mimetype = 'image/png'
+        elif self.calisphere_type == 'video':
+            self.source_mimetype = 'image/jpg'
         self.source_filename = self.file_info['filename']
         self.source_filename = self.source_filename.replace(' ', '_')
         self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)
@@ -51,7 +54,11 @@ class NuxeoStashThumb(NuxeoStashRef):
         self._download_nuxeo_file()
 
         # create thumbnail
-        thumb_created, thumb_msg = self.pdf_to_thumb(self.source_filepath, self.thumb_filepath)
+        if self.calisphere_type == 'file':
+            thumb_created, thumb_msg = self.pdf_to_thumb(self.source_filepath, self.thumb_filepath)
+        elif self.calisphere_type == 'video':
+            thumb_created, thumb_msg = self.video_to_thumb(self.source_filepath, self.thumb_filepath)
+
         self._update_report('thumb_created', {'thumb_created': thumb_created, 'msg': thumb_msg})
         if not thumb_created:
             self._remove_tmp()
@@ -66,7 +73,44 @@ class NuxeoStashThumb(NuxeoStashRef):
         self._update_report('stashed', stashed)
 
         self._remove_tmp()
+
         return self.report
+
+
+    def video_to_thumb(self, input_path, output_path):
+        '''
+           generate thumbnail image for video
+           use ffmpeg to grab center frame from video
+        '''
+        to_thumb = False
+
+        duration = subprocess.check_output(
+            [
+                self.ffprobe_location, 
+                '-v', 'fatal', 
+                '-show_entries', 'format=duration', 
+                '-of', 'default=nw=1:nk=1', 
+                input_path
+            ]
+        )
+
+        midpoint = float(duration.strip()) / 2
+
+        subprocess.check_output(
+            [
+                self.ffmpeg_location,
+                '-v', 'fatal',
+                '-ss', str(midpoint),
+                '-i', input_path,
+                '-vframes', '1', # output 1 frame
+                output_path
+            ]
+        )
+        to_thumb = True
+        msg = "Used ffmpeg to convert {} to {}".format(input_path, output_path)
+        self.logger.info(msg)
+       
+        return to_thumb, msg      
 
     def pdf_to_thumb(self, input_path, output_path):
         '''
