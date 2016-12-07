@@ -209,12 +209,12 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     # TODO: make sure this is in rqworker log
     summary = ''.join((
         "SUMMARY:\n",
-        "objects processed:              {}".format(len(stash.objects)),
-        "replaced existing files on s3:  {}".format(stash.replace),
-        "images stashed:                 {}".format(images_stashed),
-        "files stashed:                  {}".format(files_stashed),
-        "thumbnails stashed:             {}".format(thumbs_stashed),
-        "media.json files stashed:       {}".format(mediajson_stashed),
+        "objects processed:              {}\n".format(len(stash.objects)),
+        "replaced existing files on s3:  {}\n".format(stash.replace),
+        "images stashed:                 {}\n".format(images_stashed),
+        "files stashed:                  {}\n".format(files_stashed),
+        "thumbnails stashed:             {}\n".format(thumbs_stashed),
+        "media.json files stashed:       {}\n".format(mediajson_stashed),
         )
     )
     print summary
