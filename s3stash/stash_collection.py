@@ -218,7 +218,7 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
         )
     )
     print summary
-    publish_to_harvester('Deep Harvest for {} done'.format(registry_id),
+    publish_to_harvesting('Deep Harvest for {} done'.format(registry_id),
                          summary)
 
 
