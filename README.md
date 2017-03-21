@@ -1,4 +1,4 @@
-j nuxeo-calisphere
+# nuxeo-calisphere
 
 Code for prepping content in Nuxeo for Calisphere harvesting. This is known internally as "deep harvesting". This consists of the following steps:
 
