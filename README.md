@@ -7,11 +7,23 @@ Code for prepping content in Nuxeo for Calisphere harvesting. This is known inte
 
 ## Installation
 
-coming soon...
-
 requires ffmpeg and ffprobe
+
+Because it uses the ucldc-iiif project it also requires ImageMagick, libtiff and kakadu.
     
+See https://github.com/mredar/ingest_deploy/blob/master/ansible/roles/worker/tasks/install_deep_harvester.yml for an Ansible playbook that installs this code.
+
 ## Deep harvest a collection
+
+As of December 2016, the harvester worker machines can now run the deep harvesting code. The deep harvest has been added as an "action" in the registry admin tool. The process will create a Slack message with the summary report for the run.
+
+The more detailed json reports are now stored on S3. The location is:
+
+`https://s3.amazonaws.com/static.ucldc.cdlib.org/deep-harvesting/reports/{report_type}-{collection id}.json`
+
+Where the {report_type} is one of "files", "images", "thumbs" or "mediajson" and the {collection id} is the registry numeric ID for the collection.
+
+### Old registry deep harvest procedure
 
 How to process and stash all necessary content on S3 for deep harvesting a collection:
 

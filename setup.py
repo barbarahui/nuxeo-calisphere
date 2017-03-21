@@ -22,6 +22,7 @@ setup(
     install_requires=[
         'argparse',
         'boto',
+        'boto3',
         'pynux',
         'python-magic',
         'couchdb',

@@ -11,6 +11,8 @@ from s3stash.nxstashref_image import NuxeoStashImage
 from s3stash.nxstashref_file import NuxeoStashFile
 from s3stash.nxstash_thumb import NuxeoStashThumb
 from s3stash.nxstash_mediajson import NuxeoStashMediaJson
+import boto3
+import botocore.exceptions
 
 IMAGE_BUCKET = 'ucldc-private-files/jp2000'
 IMAGE_REGION = 'us-west-2'
@@ -23,6 +25,20 @@ MEDIAJSON_REGION = 'us-east-1'
 REPORT_BUCKET = 'static.ucldc.cdlib.org/deep-harvesting/reports'
 
 _loglevel_ = 'INFO'
+
+def publish_to_harvesting(subject, message):
+    '''Publish a SNS message to the harvesting topic channel'''
+    client = boto3.client('sns')
+    # NOTE: this appears to raise exceptions if problem
+    try:
+        client.publish(
+            TopicArn='arn:aws:sns:us-west-2:563907706919:ucldc-harvesting',
+            Message=message,
+            Subject=subject
+            )
+    except botocore.exceptions.BotoCoreError, e:
+        import sys
+        print >> sys.stderr, 'Exception in Boto SNS: {}'.format(e)
 
 
 class Stash(object):
@@ -191,13 +207,20 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     ])
 
     # TODO: make sure this is in rqworker log
-    print "SUMMARY:"
-    print "objects processed:              {}".format(len(stash.objects))
-    print "replaced existing files on s3:  {}".format(stash.replace)
-    print "images stashed:                 {}".format(images_stashed)
-    print "files stashed:                  {}".format(files_stashed)
-    print "thumbnails stashed:             {}".format(thumbs_stashed)
-    print "media.json files stashed:       {}".format(mediajson_stashed)
+    summary = ''.join((
+        "SUMMARY:\n",
+        "objects processed:              {}\n".format(len(stash.objects)),
+        "replaced existing files on s3:  {}\n".format(stash.replace),
+        "images stashed:                 {}\n".format(images_stashed),
+        "files stashed:                  {}\n".format(files_stashed),
+        "thumbnails stashed:             {}\n".format(thumbs_stashed),
+        "media.json files stashed:       {}\n".format(mediajson_stashed),
+        )
+    )
+    print summary
+    publish_to_harvesting('Deep Harvest for {} done'.format(registry_id),
+                         summary)
+
 
 
 if __name__ == "__main__":
