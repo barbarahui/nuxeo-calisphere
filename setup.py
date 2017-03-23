@@ -1,6 +1,7 @@
 import os
 from setuptools import setup
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
@@ -8,9 +9,9 @@ def read(fname):
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name = "UCLDC Deep Harvester",
-    version = "0.0.3",
-    description = ("deep harvester code for the UCLDC project"),
+    name="UCLDC Deep Harvester",
+    version="0.0.3",
+    description=("deep harvester code for the UCLDC project"),
     long_description=read('README.md'),
     author='Barbara Hui',
     author_email='barbara.hui@ucop.edu',

@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-import sys, os
+import sys
 import argparse
 from pynux import utils
 from boto import connect_s3
-from boto.s3.connection import S3Connection, OrdinaryCallingFormat
-from boto.s3.key import Key
+from boto.s3.connection import OrdinaryCallingFormat
+import boto.exception
 import urlparse
+
 
 def main(argv=None):
 
-    parser = argparse.ArgumentParser(description='print info for items in collection where media.json file is missing.')
+    parser = argparse.ArgumentParser(
+        description='print info for items in collection where media.json '
+                    'file is missing.'
+    )
     parser.add_argument('path', help="Nuxeo document path for collection")
     parser.add_argument('bucket', help="S3 bucket name")
 
@@ -21,7 +25,7 @@ def main(argv=None):
 
     nuxeo_path = argv.path
     bucketpath = argv.bucket
-    
+
     print "collection nuxeo_path:", nuxeo_path
 
     # get the Nuxeo ID for the collection
@@ -30,7 +34,7 @@ def main(argv=None):
     print "collection nuxeo_id:", nuxeo_id
 
     # connect to S3
-    conn = connect_s3(calling_format = OrdinaryCallingFormat())    
+    conn = connect_s3(calling_format=OrdinaryCallingFormat())
     bucketpath = bucketpath.strip("/")
     bucketbase = bucketpath.split("/")[0]
     print "bucketpath:", bucketpath
@@ -50,7 +54,7 @@ def main(argv=None):
         #print "obj_key", obj_key
         #print "s3_url", s3_url
 
-        if not(bucket.get_key(parts.path)):
+        if not (bucket.get_key(parts.path)):
             print "object doesn't exist on S3:", parts.path
         '''
         else:
@@ -60,6 +64,7 @@ def main(argv=None):
         print "\nfile contents:"
         print k.get_contents_as_string()
         '''
+
 
 if __name__ == "__main__":
     sys.exit(main())

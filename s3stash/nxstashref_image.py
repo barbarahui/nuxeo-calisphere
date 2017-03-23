@@ -1,26 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, os
-import argparse
+import sys
+import os
 from s3stash.nxstashref import NuxeoStashRef
 from ucldc_iiif.convert import Convert
 import logging
 
 PRECONVERT = ['image/jpeg', 'image/gif', 'image/png']
 
+
 class NuxeoStashImage(NuxeoStashRef):
+    ''' Base class for fetching a Nuxeo image file, converting it to jp2
+    and stashing it in S3 '''
 
-    ''' Base class for fetching a Nuxeo image file, converting it to jp2 and stashing it in S3 '''
+    def __init__(self,
+                 path,
+                 bucket='ucldc-private-files/jp2000',
+                 region='us-west-2',
+                 pynuxrc='~/.pynuxrc',
+                 replace=False):
+        super(NuxeoStashImage, self).__init__(path, bucket, region, pynuxrc,
+                                              replace)
 
-    def __init__(self, path, bucket='ucldc-private-files/jp2000', region='us-west-2', pynuxrc='~/.pynuxrc', replace=False):
-        super(NuxeoStashImage, self).__init__(path, bucket, region, pynuxrc, replace)
- 
         self.logger = logging.getLogger(__name__)
-        
+
         self.source_filename = "sourcefile"
         self.source_filepath = os.path.join(self.tmp_dir, self.source_filename)
         self.magick_tiff_filepath = os.path.join(self.tmp_dir, 'magicked.tif')
-        self.uncompressed_tiff_filepath = os.path.join(self.tmp_dir, 'uncompressed.tif')
+        self.uncompressed_tiff_filepath = os.path.join(self.tmp_dir,
+                                                       'uncompressed.tif')
         self.srgb_tiff_filepath = os.path.join(self.tmp_dir, 'srgb.tiff')
         self.prepped_filepath = os.path.join(self.tmp_dir, 'prepped.tiff')
 
@@ -30,25 +38,28 @@ class NuxeoStashImage(NuxeoStashRef):
         self.convert = Convert()
 
     def nxstashref(self):
-        ''' download file, convert to iiif-compatible format, and stash on s3 '''
+        ''' download file, convert to iiif-compatible format,
+        and stash on s3 '''
 
         self.report['converted'] = False
         self.report['stashed'] = False
 
-        # first see if this looks like a valid file to try to convert 
+        # first see if this looks like a valid file to try to convert
         is_image, image_msg = self._is_image()
-        self._update_report('is_image', {'is_image': is_image, 'msg': image_msg})
+        self._update_report('is_image',
+                            {'is_image': is_image,
+                             'msg': image_msg})
         self._update_report('precheck', {'pass': False, 'msg': image_msg})
         if not is_image:
             self._remove_tmp()
             return self.report
-           
+
         self.has_file = self.dh.has_file(self.metadata)
         self._update_report('has_file', self.has_file)
         if not self.has_file:
             return self.report
 
-        self.file_info = self._get_file_info(self.metadata) 
+        self.file_info = self._get_file_info(self.metadata)
         self.source_mimetype = self.file_info['mimetype']
         passed, precheck_msg = self.convert._pre_check(self.source_mimetype)
         self._update_report('precheck', {'pass': passed, 'msg': precheck_msg})
@@ -82,7 +93,7 @@ class NuxeoStashImage(NuxeoStashRef):
 
         # convert to jp2
         converted, jp2_report = self._create_jp2()
-        self._update_report('create_jp2', jp2_report) 
+        self._update_report('create_jp2', jp2_report)
         self._update_report('converted', converted)
         if not converted:
             self._remove_tmp()
@@ -92,9 +103,9 @@ class NuxeoStashImage(NuxeoStashRef):
         stashed, s3_report = self._s3_stash(self.jp2_filepath, 'image/jp2')
         self._update_report('s3_stash', s3_report)
         self._update_report('stashed', stashed)
- 
+
         self._remove_tmp()
-        return self.report 
+        return self.report
 
     def _is_image(self):
         ''' do a basic check to see if this is an image '''
@@ -102,7 +113,8 @@ class NuxeoStashImage(NuxeoStashRef):
         try:
             type = self.metadata['type']
         except KeyError:
-            msg = "Could not find Nuxeo metadata type for object. Setting nuxeo type to None"
+            msg = "Could not find Nuxeo metadata type for object. " \
+                  "Setting nuxeo type to None"
             return False, msg
 
         if type in ['SampleCustomPicture']:
@@ -115,45 +127,67 @@ class NuxeoStashImage(NuxeoStashRef):
     def _create_jp2(self):
         ''' convert a local image to a jp2
         '''
-        report = {} 
+        report = {}
 
         # prep file for conversion to jp2
         if self.source_mimetype in PRECONVERT:
-            preconverted, preconvert_msg = self.convert._pre_convert(self.source_filepath, self.magick_tiff_filepath)
-            report['pre_convert'] = {'preconverted': preconverted, 'msg': preconvert_msg}
+            preconverted, preconvert_msg = self.convert._pre_convert(
+                self.source_filepath, self.magick_tiff_filepath)
+            report['pre_convert'] = {
+                'preconverted': preconverted,
+                'msg': preconvert_msg
+            }
 
-            tiff_to_srgb, tiff_to_srgb_msg = self.convert._tiff_to_srgb_libtiff(self.magick_tiff_filepath, self.prepped_filepath)
-            report['tiff_to_srgb'] = {'tiff_to_srgb': tiff_to_srgb, 'msg': tiff_to_srgb_msg}
+            tiff_to_srgb, tiff_to_srgb_msg = self.convert._tiff_to_srgb_libtiff(
+                self.magick_tiff_filepath, self.prepped_filepath)
+            report['tiff_to_srgb'] = {
+                'tiff_to_srgb': tiff_to_srgb,
+                'msg': tiff_to_srgb_msg
+            }
 
         elif self.source_mimetype == 'image/tiff':
-            uncompressed, uncompress_msg = self.convert._uncompress_tiff(self.source_filepath, self.uncompressed_tiff_filepath)
-            report['uncompress_tiff'] = {'uncompressed': uncompressed, 'msg': uncompress_msg}
+            uncompressed, uncompress_msg = self.convert._uncompress_tiff(
+                self.source_filepath, self.uncompressed_tiff_filepath)
+            report['uncompress_tiff'] = {
+                'uncompressed': uncompressed,
+                'msg': uncompress_msg
+            }
 
-            tiff_to_srgb, tiff_to_srgb_msg = self.convert._tiff_to_srgb_libtiff(self.uncompressed_tiff_filepath, self.prepped_filepath)
-            report['tiff_to_srgb'] = {'tiff_to_srgb': tiff_to_srgb, 'msg': tiff_to_srgb_msg}
+            tiff_to_srgb, tiff_to_srgb_msg = self.convert._tiff_to_srgb_libtiff(
+                self.uncompressed_tiff_filepath, self.prepped_filepath)
+            report['tiff_to_srgb'] = {
+                'tiff_to_srgb': tiff_to_srgb,
+                'msg': tiff_to_srgb_msg
+            }
 
         else:
-            msg = "Did not know how to prep file with mimetype {} for conversion to jp2.".format(self.source_mimetype)
+            msg = "Did not know how to prep file with mimetype {} for " \
+                  "conversion to jp2.".format(self.source_mimetype)
             self.logger.warning(msg)
             report['status'] = 'unknown mimetype'
-            report['msg'] = "Did not know how to prep file with mimetype {} for conversion to jp2.".format(self.source_mimetype)
+            report['msg'] = "Did not know how to prep file with mimetype {} " \
+                            "for conversion to jp2.".format(self.source_mimetype)
             return report
 
         # convert to sRGB
-         
 
         # create jp2
-        converted, jp2_msg = self.convert._tiff_to_jp2(self.prepped_filepath, self.jp2_filepath)
-        report['convert_tiff_to_jp2'] = {'converted': converted, 'msg': jp2_msg}
+        converted, jp2_msg = self.convert._tiff_to_jp2(self.prepped_filepath,
+                                                       self.jp2_filepath)
+        report['convert_tiff_to_jp2'] = {
+            'converted': converted,
+            'msg': jp2_msg
+        }
 
         return converted, report
+
 
 def main(argv=None):
     pass
 
+
 if __name__ == "__main__":
     sys.exit(main())
-
 """
 Copyright © 2014, Regents of the University of California
 All rights reserved.

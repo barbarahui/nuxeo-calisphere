@@ -26,6 +26,7 @@ REPORT_BUCKET = 'static.ucldc.cdlib.org/deep-harvesting/reports'
 
 _loglevel_ = 'INFO'
 
+
 def publish_to_harvesting(subject, message):
     '''Publish a SNS message to the harvesting topic channel'''
     client = boto3.client('sns')
@@ -219,8 +220,7 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     )
     print summary
     publish_to_harvesting('Deep Harvest for {} done'.format(registry_id),
-                         summary)
-
+                          summary)
 
 
 if __name__ == "__main__":
