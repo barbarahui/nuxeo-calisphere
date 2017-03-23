@@ -1,24 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, os
-import argparse
+import sys
+import os
 from s3stash.nxstashref import NuxeoStashRef
 import subprocess
 import shutil
+
 
 class NuxeoStashThumb(NuxeoStashRef):
     '''
         Class for fetching a Nuxeo object of type `SampleCustomFile`,
         creating a thumbnail image of the file, and stashing in S3.
     '''
-    def __init__(self, path, bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media', region='us-east-1', pynuxrc='~/.pynuxrc', replace=False):
-       super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc, replace)
-       self.magick_convert_location = os.environ.get('PATH_MAGICK_CONVERT',
-                                                     '/usr/local/bin/convert')
-       self.ffmpeg_location = os.environ.get('PATH_FFMPEG',
-                                             '/usr/local/bin/ffmpeg')
-       self.ffprobe_location = os.environ.get('PATH_FFPROBE',
-                                              '/usr/local/bin/ffprobe')
+
+    def __init__(self,
+                 path,
+                 bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media',
+                 region='us-east-1',
+                 pynuxrc='~/.pynuxrc',
+                 replace=False):
+        super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc,
+                                              replace)
+        self.magick_convert_location = os.environ.get('PATH_MAGICK_CONVERT',
+                                                      '/usr/local/bin/convert')
+        self.ffmpeg_location = os.environ.get('PATH_FFMPEG',
+                                              '/usr/local/bin/ffmpeg')
+        self.ffprobe_location = os.environ.get('PATH_FFPROBE',
+                                               '/usr/local/bin/ffprobe')
 
     def nxstashref(self):
         return self.nxstashthumb()
@@ -60,11 +68,15 @@ class NuxeoStashThumb(NuxeoStashRef):
 
         # create thumbnail
         if self.calisphere_type == 'file':
-            thumb_created, thumb_msg = self.pdf_to_thumb(self.source_filepath, self.thumb_filepath)
+            thumb_created, thumb_msg = self.pdf_to_thumb(self.source_filepath,
+                                                         self.thumb_filepath)
         elif self.calisphere_type == 'video':
-            thumb_created, thumb_msg = self.video_to_thumb(self.source_filepath, self.thumb_filepath)
+            thumb_created, thumb_msg = self.video_to_thumb(
+                self.source_filepath, self.thumb_filepath)
 
-        self._update_report('thumb_created', {'thumb_created': thumb_created, 'msg': thumb_msg})
+        self._update_report('thumb_created',
+                            {'thumb_created': thumb_created,
+                             'msg': thumb_msg})
         if not thumb_created:
             self._remove_tmp()
             return self.report
@@ -73,14 +85,14 @@ class NuxeoStashThumb(NuxeoStashRef):
         shutil.copyfile(self.thumb_filepath, self.source_filepath)
 
         # stash thumbnail in s3
-        stashed, s3_report = self._s3_stash(self.source_filepath, self.source_mimetype)
+        stashed, s3_report = self._s3_stash(self.source_filepath,
+                                            self.source_mimetype)
         self._update_report('s3_stash', s3_report)
         self._update_report('stashed', stashed)
 
         self._remove_tmp()
 
         return self.report
-
 
     def video_to_thumb(self, input_path, output_path):
         '''
@@ -89,54 +101,54 @@ class NuxeoStashThumb(NuxeoStashRef):
         '''
         to_thumb = False
 
-        duration = subprocess.check_output(
-            [
-                self.ffprobe_location, 
-                '-v', 'fatal', 
-                '-show_entries', 'format=duration', 
-                '-of', 'default=nw=1:nk=1', 
-                input_path
-            ]
-        )
+        duration = subprocess.check_output([
+            self.ffprobe_location, '-v', 'fatal', '-show_entries',
+            'format=duration', '-of', 'default=nw=1:nk=1', input_path
+        ])
 
         midpoint = float(duration.strip()) / 2
 
-        subprocess.check_output(
-            [
-                self.ffmpeg_location,
-                '-v', 'fatal',
-                '-ss', str(midpoint),
-                '-i', input_path,
-                '-vframes', '1', # output 1 frame
-                output_path
-            ]
-        )
+        subprocess.check_output([
+            self.ffmpeg_location,
+            '-v',
+            'fatal',
+            '-ss',
+            str(midpoint),
+            '-i',
+            input_path,
+            '-vframes',
+            '1',  # output 1 frame
+            output_path
+        ])
         to_thumb = True
         msg = "Used ffmpeg to convert {} to {}".format(input_path, output_path)
         self.logger.info(msg)
-       
-        return to_thumb, msg      
+
+        return to_thumb, msg
 
     def pdf_to_thumb(self, input_path, output_path):
         '''
            generate thumbnail image for PDF
-           use ImageMagick `convert` tool as described here: http://www.nuxeo.com/blog/qa-friday-thumbnails-pdf-psd-documents/
+           use ImageMagick `convert` tool as described here:
+           http://www.nuxeo.com/blog/qa-friday-thumbnails-pdf-psd-documents/
         '''
         try:
-            input_string = "{}[0]".format(input_path) # [0] to specify first page of PDF
-            subprocess.check_output([self.magick_convert_location,
-                "-quiet",
-                "-strip",
-                "-format", "png",
-                "-quality", "75",
-                input_string,
-                output_path])
+            input_string = "{}[0]".format(
+                input_path)  # [0] to specify first page of PDF
+            subprocess.check_output([
+                self.magick_convert_location, "-quiet", "-strip", "-format",
+                "png", "-quality", "75", input_string, output_path
+            ])
             to_thumb = True
-            msg = "Used ImageMagic `convert` to convert {} to {}".format(input_path, output_path)
+            msg = "Used ImageMagic `convert` to convert {} to {}".format(
+                input_path, output_path)
             self.logger.info(msg)
         except subprocess.CalledProcessError, e:
             to_thumb = False
-            msg = 'ImageMagic `convert` command failed: {}\nreturncode was: {}\noutput was: {}'.format(e.cmd, e.returncode, e.output)
+            msg = 'ImageMagic `convert` command failed: {}\nreturncode ' \
+                  'was: {}\noutput was: {}'.format(e.cmd,
+                                                   e.returncode,
+                                                   e.output)
             self.logger.error(msg)
 
         return to_thumb, msg
@@ -145,9 +157,9 @@ class NuxeoStashThumb(NuxeoStashRef):
 def main(argv=None):
     pass
 
+
 if __name__ == "__main__":
     sys.exit(main())
-
 """
 Copyright © 2014, Regents of the University of California
 All rights reserved.

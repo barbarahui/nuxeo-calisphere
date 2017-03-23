@@ -1,17 +1,22 @@
 #!/usr/bin/env python
 import os
 import unittest
-from deepharvest import mediajson 
+from deepharvest import mediajson
 import json
 
-class MediaJsonTestCase(unittest.TestCase):
 
+class MediaJsonTestCase(unittest.TestCase):
     def setUp(self):
-        test_json_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'json')
-        self.test_nuxeo_prepped_metadata = os.path.join(test_json_dir, 'nuxeo_prepped_metadata.json')        
-        self.test_nuxeo_invalid_object_format = os.path.join(test_json_dir, 'nuxeo_invalid_format.json')
-        self.test_component_prepped_md = os.path.join(test_json_dir, 'nuxeo_component_md_prepped.json')
-        self.test_component_prepped_md_w_transcript = os.path.join(test_json_dir, 'nuxeo_component_md_prepped_w_transcript.json')
+        test_json_dir = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), 'json')
+        self.test_nuxeo_prepped_metadata = os.path.join(
+            test_json_dir, 'nuxeo_prepped_metadata.json')
+        self.test_nuxeo_invalid_object_format = os.path.join(
+            test_json_dir, 'nuxeo_invalid_format.json')
+        self.test_component_prepped_md = os.path.join(
+            test_json_dir, 'nuxeo_component_md_prepped.json')
+        self.test_component_prepped_md_w_transcript = os.path.join(
+            test_json_dir, 'nuxeo_component_md_prepped_w_transcript.json')
         self.test_no_id = os.path.join(test_json_dir, 'nuxeo_no_id.json')
 
     def test_create_media_json_simple(self):
@@ -25,7 +30,7 @@ class MediaJsonTestCase(unittest.TestCase):
         self.assertEqual(media_json['label'], nuxeo_md['label'])
         self.assertEqual(media_json['id'], nuxeo_md['id'])
         self.assertEqual(media_json['dimensions'], nuxeo_md['dimensions'])
-        self.assertNotIn('extraneous', media_json) 
+        self.assertNotIn('extraneous', media_json)
 
     def test_create_media_json_complex(self):
         ''' test assembling metadata for a complex object '''
@@ -34,29 +39,40 @@ class MediaJsonTestCase(unittest.TestCase):
         mj = mediajson.MediaJson()
         media_json = mj.create_media_json(parent_md, component_md)
         self.assertIn('structMap', media_json)
-        self.assertEqual(media_json['structMap'][0]['href'], component_md[0]['href'])
-        self.assertEqual(media_json['structMap'][0]['format'], component_md[0]['format'])
-        self.assertEqual(media_json['structMap'][0]['label'], component_md[0]['label'])
-        self.assertEqual(media_json['structMap'][0]['id'], component_md[0]['id'])
-        self.assertEqual(media_json['structMap'][0]['dimensions'], component_md[0]['dimensions'])
+        self.assertEqual(media_json['structMap'][0]['href'],
+                         component_md[0]['href'])
+        self.assertEqual(media_json['structMap'][0]['format'],
+                         component_md[0]['format'])
+        self.assertEqual(media_json['structMap'][0]['label'],
+                         component_md[0]['label'])
+        self.assertEqual(media_json['structMap'][0]['id'],
+                         component_md[0]['id'])
+        self.assertEqual(media_json['structMap'][0]['dimensions'],
+                         component_md[0]['dimensions'])
 
     def test_invalid_format_error(self):
-        ''' Test creation of media_json with an invalid object format gives error '''
+        ''' Test creation of media_json with an invalid object format
+        gives error '''
         mj = mediajson.MediaJson()
         nuxeo_md = json.load(open(self.test_nuxeo_invalid_object_format))
         with self.assertRaises(ValueError):
             media_json = mj.create_media_json(nuxeo_md)
 
     def test_create_media_json_with_transcript(self):
-        ''' Test creation of media_json for complex object with transcriptions at component level '''
+        ''' Test creation of media_json for complex object with
+        transcriptions at component level '''
         parent_md = json.load(open(self.test_nuxeo_prepped_metadata))
-        component_md = json.load(open(self.test_component_prepped_md_w_transcript))
+        component_md = json.load(
+            open(self.test_component_prepped_md_w_transcript))
         mj = mediajson.MediaJson()
         media_json = mj.create_media_json(parent_md, component_md)
-        self.assertEqual(media_json['structMap'][0]['transcription'], component_md[0]['transcription']) 
+        self.assertEqual(media_json['structMap'][0]['transcription'],
+                         component_md[0]['transcription'])
+
 
 def main():
     unittest.main()
 
+
 if __name__ == '__main__':
-    main() 
+    main()

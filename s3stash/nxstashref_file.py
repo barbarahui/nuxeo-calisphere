@@ -1,20 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, os
-import argparse
+import sys
+import os
 from s3stash.nxstashref import NuxeoStashRef
 
 VALID_CALISPHERE_TYPES = ['file', 'audio', 'video']
 
+
 class NuxeoStashFile(NuxeoStashRef):
-    ''' 
+    '''
         Class for fetching a Nuxeo object file and stashing in S3
     '''
-    def __init__(self, path, bucket='ucldc-nuxeo-ref-media', region='us-west-2', pynuxrc='~/.pynuxrc', replace=False):
-        super(NuxeoStashFile, self).__init__(path, bucket, region, pynuxrc, replace)
-        
+
+    def __init__(self,
+                 path,
+                 bucket='ucldc-nuxeo-ref-media',
+                 region='us-west-2',
+                 pynuxrc='~/.pynuxrc',
+                 replace=False):
+        super(NuxeoStashFile, self).__init__(path, bucket, region, pynuxrc,
+                                             replace)
+
     def nxstashref(self):
-        ''' download file and stash in s3 ''' 
+        ''' download file and stash in s3 '''
 
         self.report['stashed'] = False
 
@@ -25,14 +33,14 @@ class NuxeoStashFile(NuxeoStashRef):
         self.has_file = self.dh.has_file(self.metadata)
         self._update_report('has_file', self.has_file)
         if not self.has_file:
-            return self.report 
+            return self.report
 
         self.s3_stashed = self._is_s3_stashed()
         self._update_report('already_s3_stashed', self.s3_stashed)
         if not self.replace and self.s3_stashed:
-            return self.report 
+            return self.report
 
-        # get file details 
+        # get file details
         self.file_info = self._get_file_info(self.metadata)
         self.source_download_url = self.file_info['url']
         self.source_mimetype = self.file_info['mimetype']
@@ -45,10 +53,11 @@ class NuxeoStashFile(NuxeoStashRef):
         self._update_report('filepath', self.source_filepath)
 
         # download the file
-        self._download_nuxeo_file() 
+        self._download_nuxeo_file()
 
         # stash in s3
-        stashed, s3_report = self._s3_stash(self.source_filepath, self.source_mimetype)
+        stashed, s3_report = self._s3_stash(self.source_filepath,
+                                            self.source_mimetype)
         self._update_report('s3_stash', s3_report)
         self._update_report('stashed', stashed)
 
@@ -57,13 +66,13 @@ class NuxeoStashFile(NuxeoStashRef):
 
         return self.report
 
+
 def main(argv=None):
     pass
 
+
 if __name__ == "__main__":
     sys.exit(main())
-
-
 """
 Copyright © 2014, Regents of the University of California
 All rights reserved.
@@ -91,4 +100,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-""" 
+"""

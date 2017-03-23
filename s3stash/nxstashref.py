@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, os
-import argparse
+import sys
 from pynux import utils
 import requests
 import tempfile
@@ -10,32 +9,39 @@ import shutil
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
 import urllib
 from os.path import expanduser
-import s3stash.s3tools 
+import s3stash.s3tools
 
 S3_URL_FORMAT = "s3://{0}/{1}"
 
-class NuxeoStashRef(object):
 
+class NuxeoStashRef(object):
     ''' Base class for fetching a Nuxeo file and stashing it in S3 '''
 
-    def __init__(self, path, bucket, region, pynuxrc='~/.pynuxrc', replace=False):
-       
+    def __init__(self,
+                 path,
+                 bucket,
+                 region,
+                 pynuxrc='~/.pynuxrc',
+                 replace=False):
+
         self.logger = logging.getLogger(__name__)
-        
+
         self.path = path.encode('utf8', 'replace')
         self.bucket = bucket
         self.pynuxrc = pynuxrc
         self.region = region
         self.replace = replace
-        self.logger.info("initialized NuxeoStashRef with path {}".format(self.path))
+        self.logger.info("initialized NuxeoStashRef with path {}".format(
+            self.path))
 
         self.nx = utils.Nuxeo(rcfile=open(expanduser(self.pynuxrc), 'r'))
         self.uid = self.nx.get_uid(urllib.quote(self.path))
         self.metadata = self.nx.get_metadata(path=urllib.quote(self.path))
 
         self.dh = DeepHarvestNuxeo(self.path)
-        self.calisphere_type = self.dh.get_calisphere_object_type(self.metadata['type']) 
-        self.tmp_dir = tempfile.mkdtemp(dir='/tmp') # FIXME put in conf
+        self.calisphere_type = self.dh.get_calisphere_object_type(
+            self.metadata['type'])
+        self.tmp_dir = tempfile.mkdtemp(dir='/tmp')  # FIXME put in conf
 
         self.report = {}
         self._update_report('uid', self.uid)
@@ -51,21 +57,24 @@ class NuxeoStashRef(object):
 
     def _update_report(self, key, value):
         ''' add a key/value pair to report dict '''
-        self.report[key] = value 
+        self.report[key] = value
 
     def _remove_tmp(self):
         ''' clean up after ourselves '''
         shutil.rmtree(self.tmp_dir)
 
     def _download_nuxeo_file(self):
-        res = requests.get(self.source_download_url, headers=self.nx.document_property_headers, auth=self.nx.auth)
+        res = requests.get(self.source_download_url,
+                           headers=self.nx.document_property_headers,
+                           auth=self.nx.auth)
         res.raise_for_status()
         with open(self.source_filepath, 'wb') as f:
             for block in res.iter_content(1024):
                 if block:
                     f.write(block)
                     f.flush()
-        self.logger.info("Downloaded file from {} to {}".format(self.source_download_url, self.source_filepath))
+        self.logger.info("Downloaded file from {} to {}".format(
+            self.source_download_url, self.source_filepath))
 
     def _get_file_info(self, metadata):
         ''' given the full metadata for an object, get file download url '''
@@ -73,41 +82,52 @@ class NuxeoStashRef(object):
         try:
             file_content = metadata['properties']['file:content']
         except KeyError:
-            raise KeyError("Nuxeo object metadata does not contain 'properties/file:content' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'file'")
+            raise KeyError(
+                "Nuxeo object metadata does not contain 'properties/file:"
+                "content' element. Make sure 'X-NXDocumentProperties' "
+                "provided in pynux conf includes 'file'"
+            )
 
         if file_content is None:
             return None
         else:
             url = file_content['data'].strip()
             url = url.replace('/nuxeo/', '/Nuxeo/')
-            info['url'] = url.strip() 
+            info['url'] = url.strip()
             info['mimetype'] = file_content['mime-type'].strip()
             info['filename'] = file_content['name'].strip()
 
-        if not info['filename']: 
+        if not info['filename']:
             try:
                 info['filename'] = metadata['properties']['file:filename']
             except KeyError:
-                raise KeyError("Nuxeo object metadata does not contain 'properties/file:filename' element. Make sure 'X-NXDocumentProperties' provided in pynux conf includes 'file'")
+                raise KeyError(
+                    "Nuxeo object metadata does not contain 'properties/file:"
+                    "filename' element. Make sure 'X-NXDocumentProperties' "
+                    "provided in pynux conf includes 'file'"
+                )
 
         return info
 
     def _is_s3_stashed(self):
-       """ Check for existence of key on S3.
+        """ Check for existence of key on S3.
        """
-       return s3stash.s3tools.is_s3_stashed(self.bucket, self.uid, self.region)
+        return s3stash.s3tools.is_s3_stashed(self.bucket, self.uid,
+                                             self.region)
 
     def _s3_stash(self, filepath, mimetype):
-       """ Stash file in S3 bucket. 
+        """ Stash file in S3 bucket.
        """
-       return s3stash.s3tools.s3stash(filepath, self.bucket, self.uid, self.region, mimetype, self.replace)
+        return s3stash.s3tools.s3stash(filepath, self.bucket, self.uid,
+                                       self.region, mimetype, self.replace)
+
 
 def main(argv=None):
     pass
 
+
 if __name__ == "__main__":
     sys.exit(main())
-
 """
 Copyright © 2014, Regents of the University of California
 All rights reserved.
