@@ -101,29 +101,50 @@ class NuxeoStashThumb(NuxeoStashRef):
         '''
         to_thumb = False
 
-        duration = subprocess.check_output([
-            self.ffprobe_location, '-v', 'fatal', '-show_entries',
-            'format=duration', '-of', 'default=nw=1:nk=1', input_path
-        ])
+        try:
+            duration = subprocess.check_output([
+                self.ffprobe_location,
+                '-v',
+                'fatal',
+                '-show_entries',
+                'format=duration',
+                '-of',
+                'default=nw=1:nk=1',
+                input_path],
+                stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError, e:
+            msg = 'ffprobe check failed: {}\nreturncode ' \
+                  'was: {}\noutput was: {}'.format(e.cmd,
+                                                   e.returncode,
+                                                   e.output)
+            self.logger.error(msg)
 
         midpoint = float(duration.strip()) / 2
 
-        subprocess.check_output([
-            self.ffmpeg_location,
-            '-v',
-            'fatal',
-            '-ss',
-            str(midpoint),
-            '-i',
-            input_path,
-            '-vframes',
-            '1',  # output 1 frame
-            output_path
-        ])
-        to_thumb = True
-        msg = "Used ffmpeg to convert {} to {}".format(input_path, output_path)
-        self.logger.info(msg)
-
+        try:
+            subprocess.check_output([
+                self.ffmpeg_location,
+                '-v',
+                'fatal',
+                '-ss',
+                str(midpoint),
+                '-i',
+                input_path,
+                '-vframes',
+                '1',  # output 1 frame
+                output_path],
+                stderr=subprocess.STDOUT)
+            to_thumb = True
+            msg = "Used ffmpeg to convert {} to {}".format(
+                input_path, output_path)
+            self.logger.info(msg)
+        except subprocess.CalledProcessError, e:
+            to_thumb = False
+            msg = 'ffmpeg thumbnail creation failed: {}\nreturncode ' \
+                  'was: {}\noutput was: {}'.format(e.cmd,
+                                                   e.returncode,
+                                                   e.output)
+            self.logger.error(msg)
         return to_thumb, msg
 
     def pdf_to_thumb(self, input_path, output_path):
@@ -132,19 +153,26 @@ class NuxeoStashThumb(NuxeoStashRef):
            use ImageMagick `convert` tool as described here:
            http://www.nuxeo.com/blog/qa-friday-thumbnails-pdf-psd-documents/
         '''
+        to_thumb = False
         try:
             input_string = "{}[0]".format(
                 input_path)  # [0] to specify first page of PDF
             subprocess.check_output([
-                self.magick_convert_location, "-quiet", "-strip", "-format",
-                "png", "-quality", "75", input_string, output_path
-            ])
+                self.magick_convert_location,
+                "-quiet",
+                "-strip",
+                "-format",
+                "png",
+                "-quality",
+                "75",
+                input_string,
+                output_path],
+                stderr=subprocess.STDOUT)
             to_thumb = True
             msg = "Used ImageMagic `convert` to convert {} to {}".format(
                 input_path, output_path)
             self.logger.info(msg)
         except subprocess.CalledProcessError, e:
-            to_thumb = False
             msg = 'ImageMagic `convert` command failed: {}\nreturncode ' \
                   'was: {}\noutput was: {}'.format(e.cmd,
                                                    e.returncode,
