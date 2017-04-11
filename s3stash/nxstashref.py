@@ -26,17 +26,17 @@ class NuxeoStashRef(object):
 
         self.logger = logging.getLogger(__name__)
 
-        self.path = path.encode('utf8', 'replace')
+        self.path = path
         self.bucket = bucket
         self.pynuxrc = pynuxrc
         self.region = region
         self.replace = replace
         self.logger.info("initialized NuxeoStashRef with path {}".format(
-            self.path))
+            self.path.encode('ascii', 'replace')))
 
         self.nx = utils.Nuxeo(rcfile=open(expanduser(self.pynuxrc), 'r'))
-        self.uid = self.nx.get_uid(urllib.quote(self.path))
-        self.metadata = self.nx.get_metadata(path=urllib.quote(self.path))
+        self.uid = self.nx.get_uid(self.path)
+        self.metadata = self.nx.get_metadata(path=self.path)
 
         self.dh = DeepHarvestNuxeo(self.path)
         self.calisphere_type = self.dh.get_calisphere_object_type(

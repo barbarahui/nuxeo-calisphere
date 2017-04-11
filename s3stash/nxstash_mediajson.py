@@ -21,6 +21,7 @@ class NuxeoStashMediaJson(NuxeoStashRef):
                  region,
                  pynuxrc='~/.pynuxrc',
                  replace=True):
+        print type(path)
         super(NuxeoStashMediaJson, self).__init__(path, bucket, region,
                                                   pynuxrc, replace)
 
