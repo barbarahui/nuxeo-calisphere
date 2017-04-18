@@ -162,6 +162,14 @@ class NuxeoStashImage(NuxeoStashRef):
                 'msg': tiff_to_srgb_msg
             }
 
+        elif self.source_mimetype in ('image/jp2', 'image/jpx', 'image/jpm'):
+            uncompressed, uncompress_msg = self.convert._uncompress_jp2000(
+                self.source_filepath, self.prepped_filepath)
+            report['uncompress_tiff'] = {
+                'uncompressed': uncompressed,
+                'msg': uncompress_msg
+            }
+ 
         else:
             msg = "Did not know how to prep file with mimetype {} for " \
                   "conversion to jp2.".format(self.source_mimetype)
