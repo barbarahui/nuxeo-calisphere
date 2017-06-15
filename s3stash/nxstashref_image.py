@@ -148,7 +148,7 @@ class NuxeoStashImage(NuxeoStashRef):
             }
 
         elif self.source_mimetype == 'image/tiff':
-            uncompressed, uncompress_msg = self.convert._uncompress_tiff(
+            uncompressed, uncompress_msg = self.convert._pre_convert(
                 self.source_filepath, self.uncompressed_tiff_filepath)
             report['uncompress_tiff'] = {
                 'uncompressed': uncompressed,
@@ -165,7 +165,7 @@ class NuxeoStashImage(NuxeoStashRef):
         elif self.source_mimetype in ('image/jp2', 'image/jpx', 'image/jpm'):
             uncompressed, uncompress_msg = self.convert._uncompress_jp2000(
                 self.source_filepath, self.prepped_filepath)
-            report['uncompress_tiff'] = {
+            report['uncompress_jp2000'] = {
                 'uncompressed': uncompressed,
                 'msg': uncompress_msg
             }
