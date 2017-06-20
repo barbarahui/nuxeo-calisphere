@@ -108,7 +108,7 @@ def get_nuxeo_path(registry_id):
     url = "{}collection/{}/?format=json".format(REGISTRY_API_BASE, registry_id)
     res = requests.get(url)
     res.raise_for_status()
-    md = json.loads(res.text)
+    md = json.loads(res.content)
     nuxeo_path = md['harvest_extra_data']
 
     if nuxeo_path:
