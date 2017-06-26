@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
 import sys
 import argparse
 import logging
@@ -25,7 +26,8 @@ def main(argv=None):
     if argv is None:
         argv = parser.parse_args()
 
-    filename = argv.path.split('/')[-1]
+    filename = os.path.basename(argv.path)
+
     logfile = "logs/{}.log".format(filename)
     print "LOG:\t{}".format(logfile)
     logging.basicConfig(
@@ -35,7 +37,7 @@ def main(argv=None):
         datefmt='%m/%d/%Y %I:%M:%S %p')
     logger = logging.getLogger(__name__)
 
-    nxstash = NuxeoStashFile(argv.path, argv.bucket, argv.region, argv.pynuxrc,
+    nxstash = NuxeoStashFile(unicode(argv.path, "utf-8"), argv.bucket, argv.region, argv.pynuxrc,
                              argv.replace)
     report = nxstash.nxstashref()
 

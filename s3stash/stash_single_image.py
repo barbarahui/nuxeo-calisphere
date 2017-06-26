@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import sys
+import sys, os
 import argparse
 import logging
 import json
@@ -30,7 +30,7 @@ def main(argv=None):
 
     # logging
     # FIXME would like to name log with nuxeo UID
-    filename = argv.path.split('/')[-1]
+    filename = os.path.basename(argv.path)
     logfile = "logs/{}.log".format(filename)
     print "LOG:\t{}".format(logfile)
     logging.basicConfig(
@@ -41,7 +41,7 @@ def main(argv=None):
     logger = logging.getLogger(__name__)
 
     # convert and stash jp2
-    nxstash = NuxeoStashImage(argv.path, argv.bucket, argv.region,
+    nxstash = NuxeoStashImage(unicode(argv.path, "utf-8"), argv.bucket, argv.region,
                               argv.pynuxrc, argv.replace)
     report = nxstash.nxstashref()
 

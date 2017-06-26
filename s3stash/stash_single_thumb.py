@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import sys
+import sys, os
 import argparse
 import logging
 import json
@@ -28,7 +28,7 @@ def main(argv=None):
     if argv is None:
         argv = parser.parse_args()
 
-    filename = argv.path.split('/')[-1]
+    filename = os.path.basename(argv.path)
     logfile = "logs/thumb-{}.log".format(filename)
     print "LOG:\t{}".format(logfile)
     logging.basicConfig(
@@ -38,7 +38,7 @@ def main(argv=None):
         datefmt='%m/%d/%Y %I:%M:%S %p')
     logger = logging.getLogger(__name__)
 
-    nxstash = NuxeoStashThumb(argv.path, argv.bucket, argv.region,
+    nxstash = NuxeoStashThumb(unicode(argv.path, "utf-8"), argv.bucket, argv.region,
                               argv.pynuxrc, argv.replace)
     report = nxstash.nxstashref()
 
