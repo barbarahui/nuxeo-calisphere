@@ -13,8 +13,7 @@ from s3stash.nxstashref_image import NuxeoStashImage
 from s3stash.nxstashref_file import NuxeoStashFile
 from s3stash.nxstash_thumb import NuxeoStashThumb
 from s3stash.nxstash_mediajson import NuxeoStashMediaJson
-import boto3
-import botocore.exceptions
+from s3stash.publish_to_harvesting import publish_to_harvesting
 
 IMAGE_BUCKET = 'ucldc-private-files/jp2000'
 IMAGE_REGION = 'us-west-2'
@@ -27,21 +26,6 @@ MEDIAJSON_REGION = 'us-east-1'
 REPORT_BUCKET = 'static.ucldc.cdlib.org/deep-harvesting/reports'
 
 _loglevel_ = 'INFO'
-
-
-def publish_to_harvesting(subject, message):
-    '''Publish a SNS message to the harvesting topic channel'''
-    client = boto3.client('sns')
-    # NOTE: this appears to raise exceptions if problem
-    try:
-        client.publish(
-            TopicArn='arn:aws:sns:us-west-2:563907706919:ucldc-harvesting',
-            Message=message,
-            Subject=subject
-            )
-    except botocore.exceptions.BotoCoreError, e:
-        import sys
-        print >> sys.stderr, 'Exception in Boto SNS: {}'.format(e)
 
 
 class Stash(object):
