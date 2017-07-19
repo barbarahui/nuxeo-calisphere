@@ -10,7 +10,7 @@ def publish_to_harvesting(subject, message):
         client.publish(
             TopicArn='arn:aws:sns:us-west-2:563907706919:ucldc-harvesting',
             Message=message,
-            Subject=subject
+            Subject=subject[:100]
             )
     except botocore.exceptions.BotoCoreError, e:
         import sys
