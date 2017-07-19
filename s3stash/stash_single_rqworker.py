@@ -37,7 +37,7 @@ def stash_media_json(path):
     '''Stash media json for object'''
 
     bucket = 'static.ucldc.cdlib.org/media_json'
-    region = 'us-west-2'
+    region = 'us-east-1'
     pynuxrc = '~/.pynuxrc'
     replace = True
     nxstash = NuxeoStashMediaJson(path, bucket, region, pynuxrc, replace)
@@ -49,7 +49,7 @@ def stash_media_json(path):
 def stash_thumb(path):
     '''Stash single thumb'''
     bucket = 'static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media'
-    region = 'us-west-2'
+    region = 'us-east-1'
     pynuxrc = '~/.pynuxrc'
     replace = True
     nxstash = NuxeoStashThumb(
