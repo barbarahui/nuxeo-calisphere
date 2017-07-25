@@ -1,0 +1,77 @@
+{
+  "@context": "http://iiif.io/api/presentation/2/context.json", 
+  "@id": "http://www.example.org/path/to/object/manifest.json", 
+  "@type": "sc:Manifest", 
+  "label": "Example Manifest", 
+  "metadata": [
+    {
+      "label": "Date", 
+      "value": "Some Date"
+    }, 
+    {
+      "label": "Location", 
+      "value": "Some Location"
+    }
+  ], 
+  "description": "This is a longer description of the manifest", 
+  "viewingDirection": "left-to-right", 
+  "sequences": [
+    {
+      "@type": "sc:Sequence", 
+      "canvases": [
+        {
+          "@id": "http://www.example.org/path/to/object/canvas/page-1.json", 
+          "@type": "sc:Canvas", 
+          "label": "Page 1", 
+          "height": 4350, 
+          "width": 6219, 
+          "images": [
+            {
+              "@type": "oa:Annotation", 
+              "motivation": "sc:painting", 
+              "resource": {
+                "@id": "http://pottoloris-env.elasticbeanstalk.com/a4a8937b-2cc3-42ea-935e-2bfdb311a4ba/full/full/0/default.jpg", 
+                "@type": "dctypes:Image", 
+                "format": "image/jpeg", 
+                "height": 4350, 
+                "width": 6219, 
+                "service": {
+                  "@context": "http://iiif.io/api/image/2/context.json", 
+                  "@id": "http://pottoloris-env.elasticbeanstalk.com/a4a8937b-2cc3-42ea-935e-2bfdb311a4ba", 
+                  "profile": "http://iiif.io/api/image/2/level2.json"
+                }
+              }, 
+              "on": "http://www.example.org/path/to/object/canvas/page-1.json"
+            }
+          ]
+        }, 
+        {
+          "@id": "http://www.example.org/path/to/object/canvas/page-2.json", 
+          "@type": "sc:Canvas", 
+          "label": "Page 2", 
+          "height": 4350, 
+          "width": 6219, 
+          "images": [
+            {
+              "@type": "oa:Annotation", 
+              "motivation": "sc:painting", 
+              "resource": {
+                "@id": "http://pottoloris-env.elasticbeanstalk.com/a4a8937b-2cc3-42ea-935e-2bfdb311a4ba/full/full/0/default.jpg", 
+                "@type": "dctypes:Image", 
+                "format": "image/jpeg", 
+                "height": 4350, 
+                "width": 6219, 
+                "service": {
+                  "@context": "http://iiif.io/api/image/2/context.json", 
+                  "@id": "http://pottoloris-env.elasticbeanstalk.com/a4a8937b-2cc3-42ea-935e-2bfdb311a4ba", 
+                  "profile": "http://iiif.io/api/image/2/level2.json"
+                }
+              }, 
+              "on": "http://www.example.org/path/to/object/canvas/page-2.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -30,6 +30,7 @@ setup(
         'jsonpath',
         'akara',
         'ucldc-iiif'
+        #'iiif_prezi'
     ],
     packages=['deepharvest', 's3stash'],
     test_suite='tests'

@@ -7,12 +7,12 @@ import os
 from s3stash.nxstashref import NuxeoStashRef
 from deepharvest.deepharvest_nuxeo import DeepHarvestNuxeo
 from deepharvest.iiif_manifest import IIIFManifest 
-
+from iiif_prezi.factory import ManifestFactory
 
 FILENAME_FORMAT = "{}-iiif-manifest.json"
 
 class NuxeoStashIIIFManifest(NuxeoStashRef):
-    ''' create and stash IIIF manifest for a nuxeo object '''
+    '''  create and stash IIIF manifest for a nuxeo object '''
 
     def __init__(self,
                  path,
@@ -40,14 +40,16 @@ class NuxeoStashIIIFManifest(NuxeoStashRef):
         self._update_report('stashed', False)
 
         # extract and transform metadata for parent obj and any components
-        parent_md = self._get_parent_metadata(self.metadata)
+        #parent_md = self._get_parent_metadata(self.metadata)
+        #    self._get_component_metadata(c)
+        #    for c in self.dh.fetch_components(self.metadata)
+        #]
+
+        # do we just want to stuff all of the ucldc_schema metadata into the manifest? is there any harm in doing so? what about namespacing?
+
+        
 
         return self.report
-
-    def _get_parent_metadata(self, obj):
-        ''' assemble top-level (parent) object metadata '''
-
-
 
 def main(argv=None):
     pass
