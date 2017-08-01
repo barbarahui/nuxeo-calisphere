@@ -132,7 +132,8 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     logging.basicConfig(
         level=numeric_level,
         format='%(asctime)s (%(name)s) [%(levelname)s]: %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S %p')
+        datefmt='%m/%d/%Y %I:%M:%S %p',
+        stream=sys.stderr)
     logger = logging.getLogger(__name__)
 
     # get nuxeo path
