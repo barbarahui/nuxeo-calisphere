@@ -53,7 +53,7 @@ class Stash(object):
                                       self.pynuxrc, self.replace)
             report[nxstash.uid] = nxstash.nxstashref()
             for c in self.dh.fetch_components(obj):
-                logger.info('Stashing image {}'.format(c['path']))
+                self.logger.info('Stashing image {}'.format(c['path']))
                 nxstash = NuxeoStashImage(c['path'], IMAGE_BUCKET,
                                           IMAGE_REGION, self.pynuxrc,
                                           self.replace)
@@ -71,7 +71,7 @@ class Stash(object):
                                      self.pynuxrc, self.replace)
             report[nxstash.uid] = nxstash.nxstashref()
             for c in self.dh.fetch_components(obj):
-                logger.info('Stashing file {}'.format(c['path']))
+                self.logger.info('Stashing file {}'.format(c['path']))
                 nxstash = NuxeoStashFile(c['path'], FILE_BUCKET, FILE_REGION,
                                          self.pynuxrc, self.replace)
                 report[nxstash.uid] = nxstash.nxstashref()
@@ -88,7 +88,7 @@ class Stash(object):
                                       self.pynuxrc, self.replace)
             report[nxstash.uid] = nxstash.nxstashref()
             for c in self.dh.fetch_components(obj):
-                logger.info('Stashing thumb {}'.format(c['path']))
+                self.logger.info('Stashing thumb {}'.format(c['path']))
                 nxstash = NuxeoStashThumb(c['path'], THUMB_BUCKET,
                                           THUMB_REGION, self.pynuxrc,
                                           self.replace)
@@ -100,7 +100,7 @@ class Stash(object):
         ''' create and stash media.json files for a nuxeo collection '''
         report = {}
         for obj in self.objects:
-            logger.info('Stashing media json {}'.format(c['path']))
+            self.logger.info('Stashing media json {}'.format(c['path']))
             nxstash = NuxeoStashMediaJson(obj['path'], MEDIAJSON_BUCKET,
                                           MEDIAJSON_REGION, self.pynuxrc,
                                           self.replace)
