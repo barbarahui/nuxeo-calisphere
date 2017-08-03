@@ -13,7 +13,7 @@ def stash_file(path):
     region = 'us-west-2'
     pynuxrc = '~/.pynuxrc'
     replace = True
-    path = unicode(path, "utf-8") if not isinstance(path, unicode)
+    path = unicode(path, "utf-8") if not isinstance(path, unicode) else path
     nxstash = NuxeoStashFile(path, bucket, region, pynuxrc, replace)
     report = nxstash.nxstashref()
     publish_to_harvesting('Stashed file for {}'.format(path),
@@ -26,7 +26,7 @@ def stash_image(path):
     region = 'us-west-2'
     pynuxrc = '~/.pynuxrc'
     replace = True
-    path = unicode(path, "utf-8") if not isinstance(path, unicode)
+    path = unicode(path, "utf-8") if not isinstance(path, unicode) else path
     nxstash = NuxeoStashImage(path, bucket, region, pynuxrc, replace)
     report = nxstash.nxstashref()
     publish_to_harvesting('Stashed image for {}'.format(path),
@@ -40,7 +40,7 @@ def stash_media_json(path):
     region = 'us-east-1'
     pynuxrc = '~/.pynuxrc'
     replace = True
-    path = unicode(path, "utf-8") if not isinstance(path, unicode)
+    path = unicode(path, "utf-8") if not isinstance(path, unicode) else path
     nxstash = NuxeoStashMediaJson(path, bucket, region, pynuxrc, replace)
     report = nxstash.nxstashref()
     publish_to_harvesting('Stashed media_json for {}'.format(path),
@@ -53,7 +53,7 @@ def stash_thumb(path):
     region = 'us-east-1'
     pynuxrc = '~/.pynuxrc'
     replace = True
-    path = unicode(path, "utf-8") if not isinstance(path, unicode)
+    path = unicode(path, "utf-8") if not isinstance(path, unicode) else path
     nxstash = NuxeoStashThumb(path, bucket, region, pynuxrc, replace)
     report = nxstash.nxstashref()
     publish_to_harvesting('Stashed thumb for {}'.format(path),
