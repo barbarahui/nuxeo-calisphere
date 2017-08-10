@@ -45,6 +45,10 @@ class Stash(object):
 
         self.objects = self.dh.fetch_objects()
 
+        self.components = {}
+        for obj in self.objects:
+            self.components[obj['uid']] = self.dh.fetch_components(obj)
+
     def images(self):
         ''' stash Nuxeo image files on s3 '''
         report = {}
@@ -52,7 +56,7 @@ class Stash(object):
             nxstash = NuxeoStashImage(obj['path'], IMAGE_BUCKET, IMAGE_REGION,
                                       self.pynuxrc, self.replace)
             report[nxstash.uid] = nxstash.nxstashref()
-            for c in self.dh.fetch_components(obj):
+            for c in self.components[obj['uid']]:
                 self.logger.info('Stashing image {}'.format(c['path']))
                 nxstash = NuxeoStashImage(c['path'], IMAGE_BUCKET,
                                           IMAGE_REGION, self.pynuxrc,
@@ -70,7 +74,7 @@ class Stash(object):
             nxstash = NuxeoStashFile(obj['path'], FILE_BUCKET, FILE_REGION,
                                      self.pynuxrc, self.replace)
             report[nxstash.uid] = nxstash.nxstashref()
-            for c in self.dh.fetch_components(obj):
+            for c in self.components[obj['uid']]:
                 self.logger.info('Stashing file {}'.format(c['path']))
                 nxstash = NuxeoStashFile(c['path'], FILE_BUCKET, FILE_REGION,
                                          self.pynuxrc, self.replace)
@@ -87,7 +91,7 @@ class Stash(object):
             nxstash = NuxeoStashThumb(obj['path'], THUMB_BUCKET, THUMB_REGION,
                                       self.pynuxrc, self.replace)
             report[nxstash.uid] = nxstash.nxstashref()
-            for c in self.dh.fetch_components(obj):
+            for c in self.components[obj['uid']]:
                 self.logger.info('Stashing thumb {}'.format(c['path']))
                 nxstash = NuxeoStashThumb(c['path'], THUMB_BUCKET,
                                           THUMB_REGION, self.pynuxrc,
@@ -100,7 +104,7 @@ class Stash(object):
         ''' create and stash media.json files for a nuxeo collection '''
         report = {}
         for obj in self.objects:
-            self.logger.info('Stashing media json {}'.format(c['path']))
+            self.logger.info('Stashing media json {}'.format(obj['path']))
             nxstash = NuxeoStashMediaJson(obj['path'], MEDIAJSON_BUCKET,
                                           MEDIAJSON_REGION, self.pynuxrc,
                                           self.replace)
