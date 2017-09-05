@@ -7,12 +7,11 @@ from s3stash.nxstash_mediajson import NuxeoStashMediaJson
 from s3stash.nxstash_thumb import NuxeoStashThumb
 
 
-def stash_file(path):
+def stash_file(path, replace=True):
     '''Stash a single file to s3'''
     bucket = 'ucldc-nuxeo-ref-media'
     region = 'us-west-2'
     pynuxrc = '~/.pynuxrc'
-    replace = True
     path = unicode(path, "utf-8") if not isinstance(path, unicode) else path
     nxstash = NuxeoStashFile(path, bucket, region, pynuxrc, replace)
     report = nxstash.nxstashref()
@@ -20,12 +19,11 @@ def stash_file(path):
                           json.dumps(report))
 
 
-def stash_image(path):
+def stash_image(path, replace=True):
     '''Stash a single image to s3'''
     bucket = 'ucldc-private-files/jp2000'
     region = 'us-west-2'
     pynuxrc = '~/.pynuxrc'
-    replace = True
     path = unicode(path, "utf-8") if not isinstance(path, unicode) else path
     nxstash = NuxeoStashImage(path, bucket, region, pynuxrc, replace)
     report = nxstash.nxstashref()
@@ -33,13 +31,12 @@ def stash_image(path):
                           json.dumps(report))
 
 
-def stash_media_json(path):
+def stash_media_json(path, replace=True):
     '''Stash media json for object'''
 
     bucket = 'static.ucldc.cdlib.org/media_json'
     region = 'us-east-1'
     pynuxrc = '~/.pynuxrc'
-    replace = True
     path = unicode(path, "utf-8") if not isinstance(path, unicode) else path
     nxstash = NuxeoStashMediaJson(path, bucket, region, pynuxrc, replace)
     report = nxstash.nxstashref()
@@ -47,12 +44,11 @@ def stash_media_json(path):
                           json.dumps(report))
 
 
-def stash_thumb(path):
+def stash_thumb(path, replace=True):
     '''Stash single thumb'''
     bucket = 'static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media'
     region = 'us-east-1'
     pynuxrc = '~/.pynuxrc'
-    replace = True
     path = unicode(path, "utf-8") if not isinstance(path, unicode) else path
     nxstash = NuxeoStashThumb(path, bucket, region, pynuxrc, replace)
     report = nxstash.nxstashref()
