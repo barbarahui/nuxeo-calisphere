@@ -20,9 +20,10 @@ class NuxeoStashImage(NuxeoStashRef):
                  bucket='ucldc-private-files/jp2000',
                  region='us-west-2',
                  pynuxrc='~/.pynuxrc',
-                 replace=False):
+                 replace=False,
+                 **kwargs):
         super(NuxeoStashImage, self).__init__(path, bucket, region, pynuxrc,
-                                              replace)
+                                              replace, **kwargs)
 
         self.logger = logging.getLogger(__name__)
 
@@ -67,11 +68,6 @@ class NuxeoStashImage(NuxeoStashRef):
         self._update_report('precheck', {'pass': passed, 'msg': precheck_msg})
         if not passed:
             self._remove_tmp()
-            return self.report
-
-        self.has_file = self.dh.has_file(self.metadata)
-        self._update_report('has_file', self.has_file)
-        if not self.has_file:
             return self.report
 
         self.s3_stashed = self._is_s3_stashed()
