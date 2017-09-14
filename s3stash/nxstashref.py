@@ -48,7 +48,7 @@ class NuxeoStashRef(object):
         self.logger.info("initialized NuxeoStashRef with path {}".format(
             self.path.encode('ascii', 'replace')))
 
-        self.dh = DeepHarvestNuxeo(self.path)
+        self.dh = DeepHarvestNuxeo(self.path, uid=self.uid)
         self.calisphere_type = self.dh.get_calisphere_object_type(
             self.metadata['type'])
         self.tmp_dir = tempfile.mkdtemp(dir='/tmp')  # FIXME put in conf
