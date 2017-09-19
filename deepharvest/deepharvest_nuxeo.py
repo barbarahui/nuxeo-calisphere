@@ -104,6 +104,8 @@ class DeepHarvestNuxeo(object):
 
         if file_content is None:
             return False
+        elif file_content['name'] == 'empty_picture.png':
+            return False
         else:
             return True
 
@@ -119,6 +121,8 @@ class DeepHarvestNuxeo(object):
             )
 
         if file_content is None:
+            return None
+        elif file_content['name'] == 'empty_picture.png':
             return None
         else:
             url = file_content['data']
