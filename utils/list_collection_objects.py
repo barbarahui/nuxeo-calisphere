@@ -45,7 +45,7 @@ def main(argv=None):
         print "{} components for {}".format(len(components), obj['uid'])
     print "finished fetching components. {} found".format(len(all_components))
 
-    objects.extend(components)
+    objects.extend(all_components)
     total_obj = len(objects)
     print "Grand Total: {}".format(total_obj)
 
