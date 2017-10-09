@@ -84,7 +84,7 @@ class Stash(object):
         
         '''
 
-def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
+def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_, start=1):
     # set up logging
     numeric_level = getattr(logging, loglevel, None)
     if not isinstance(numeric_level, int):
@@ -113,16 +113,9 @@ def main(registry_id, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
             index = index.split('_')[1]
             index = int(index)
 
-            #with open(os.path.join(chunkdir, file), 'r') as f:
-            #    md = json.load(f)
-
-            indices.append(index)
-            chunks[index] = file 
-
-    import pprint
-    pp = pprint.PrettyPrinter(indent=4)
-    #pp.pprint(chunks)
-    #pp.pprint(indices)
+            if index >= start:
+                indices.append(index)
+                chunks[index] = file 
 
     for index in sorted(indices):
         file = chunks[index]
@@ -146,6 +139,7 @@ if __name__ == "__main__":
         action='store_true',
         help='replace files on s3 if they already exist')
     parser.add_argument('--loglevel', default=_loglevel_)
+    parser.add_argument('--start', default=1, help='file number at which to start', type=int)
 
     argv = parser.parse_args()
 
@@ -153,7 +147,8 @@ if __name__ == "__main__":
     pynuxrc = argv.pynuxrc
     replace = argv.replace
     loglevel = argv.loglevel
+    start = argv.start
 
     sys.exit(
         main(
-            registry_id, pynuxrc=pynuxrc, replace=replace, loglevel=loglevel))
+            registry_id, pynuxrc=pynuxrc, replace=replace, loglevel=loglevel, start=start))
