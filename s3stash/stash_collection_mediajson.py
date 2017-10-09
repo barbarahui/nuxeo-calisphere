@@ -22,6 +22,10 @@ def main(argv=None):
     parser.add_argument('--region', default='us-east-1', help="aws region")
     parser.add_argument("--pynuxrc", default='~/.pynuxrc',
                         help="rc file for use by pynux")
+    parser.add_argument(
+        '--replace',
+        action="store_true",
+        help="replace file on s3 if it already exists")
 
     if argv is None:
         argv = parser.parse_args()
@@ -49,7 +53,7 @@ def main(argv=None):
             argv.bucket,
             argv.region,
             argv.pynuxrc,
-            True)
+            argv.replace)
         report[nxstash.uid] = nxstash.nxstashref()
 
     # output report to json file

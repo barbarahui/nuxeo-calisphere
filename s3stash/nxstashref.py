@@ -24,7 +24,7 @@ class NuxeoStashRef(object):
                  bucket,
                  region,
                  pynuxrc='~/.pynuxrc',
-                 replace=False):
+                 replace=False, **kwargs):
 
         self.logger = logging.getLogger(__name__)
 
@@ -33,14 +33,22 @@ class NuxeoStashRef(object):
         self.pynuxrc = pynuxrc
         self.region = region
         self.replace = replace
+
+        self.nx = utils.Nuxeo(rcfile=open(expanduser(self.pynuxrc), 'r'))
+
+        if 'metadata' in kwargs:
+            self.metadata = kwargs['metadata']
+            self.logger.info("got metadata from kwargs")
+        else:
+            self.metadata = self.nx.get_metadata(path=self.path)   
+            self.logger.info("got metadata via pynux utils")
+
+        self.uid = self.metadata['uid']
+
         self.logger.info("initialized NuxeoStashRef with path {}".format(
             self.path.encode('ascii', 'replace')))
 
-        self.nx = utils.Nuxeo(rcfile=open(expanduser(self.pynuxrc), 'r'))
-        self.uid = self.nx.get_uid(self.path)
-        self.metadata = self.nx.get_metadata(path=self.path)
-
-        self.dh = DeepHarvestNuxeo(self.path)
+        self.dh = DeepHarvestNuxeo(self.path, uid=self.uid)
         self.calisphere_type = self.dh.get_calisphere_object_type(
             self.metadata['type'])
         self.tmp_dir = tempfile.mkdtemp(dir='/tmp')  # FIXME put in conf

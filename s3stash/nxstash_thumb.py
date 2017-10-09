@@ -20,9 +20,10 @@ class NuxeoStashThumb(NuxeoStashRef):
                  bucket='static.ucldc.cdlib.org/ucldc-nuxeo-thumb-media',
                  region='us-east-1',
                  pynuxrc='~/.pynuxrc',
-                 replace=False):
+                 replace=False,
+                 **kwargs):
         super(NuxeoStashThumb, self).__init__(path, bucket, region, pynuxrc,
-                                              replace)
+                                              replace, **kwargs)
         self.magick_convert_location = os.environ.get('PATH_MAGICK_CONVERT',
                                                       '/usr/local/bin/convert')
         self.ffmpeg_location = os.environ.get('PATH_FFMPEG',

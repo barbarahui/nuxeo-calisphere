@@ -26,20 +26,25 @@ class DeepHarvestNuxeo(object):
     '''
 
     # FIXME don't need s3_bucket_mediajson parameter anymore
-    def __init__(self, path, s3_bucket_mediajson='', **pynux_conf):
+    def __init__(self, path, s3_bucket_mediajson='', **kwargs):
         # get configuration and initialize pynux.utils.Nuxeo
         self.nx = None
-        if 'pynuxrc' in pynux_conf:
-            pynuxrc = pynux_conf['pynuxrc']
+        if 'pynuxrc' in kwargs:
+            pynuxrc = kwargs['pynuxrc']
             self.nx = utils.Nuxeo(rcfile=open(expanduser(pynuxrc), 'r'))
-        elif 'conf_pynux' in pynux_conf:
-            conf_pynux = pynux_conf['conf_pynux']
+        elif 'conf_pynux' in kwargs:
+            conf_pynux = kwargs['conf_pynux']
             self.nx = utils.Nuxeo(conf=conf_pynux)
         else:
             self.nx = utils.Nuxeo(conf={})
 
         self.path = path
-        self.uid = self.nx.get_uid(self.path)
+
+        if 'uid' in kwargs:
+            self.uid = kwargs['uid']
+        else:
+            self.uid = self.nx.get_uid(self.path)
+
         self.s3_bucket_mediajson = s3_bucket_mediajson
 
     def fetch_objects(self):

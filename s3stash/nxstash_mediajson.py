@@ -22,9 +22,10 @@ class NuxeoStashMediaJson(NuxeoStashRef):
                  bucket,
                  region,
                  pynuxrc='~/.pynuxrc',
-                 replace=True):
+                 replace=True,
+                 **kwargs):
         super(NuxeoStashMediaJson, self).__init__(path, bucket, region,
-                                                  pynuxrc, replace)
+                                                  pynuxrc, replace, **kwargs)
 
         self.dh = DeepHarvestNuxeo(
             self.path, self.bucket, pynuxrc=self.pynuxrc)

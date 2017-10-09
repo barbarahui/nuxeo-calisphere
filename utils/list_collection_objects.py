@@ -38,12 +38,14 @@ def main(argv=None):
 
     print "about to iterate through objects and get components"
     component_count = 0
+    all_components = []
     for obj in objects:
-        components = dh.fetch_components(obj)
-        component_count = component_count + len(components)
-    print "finished fetching components. {} found".format(component_count)
+        components = dh.fetch_components(obj) 
+        all_components.extend(components)
+        print "{} components for {}".format(len(components), obj['uid'])
+    print "finished fetching components. {} found".format(len(all_components))
 
-    objects.extend(components)
+    objects.extend(all_components)
     total_obj = len(objects)
     print "Grand Total: {}".format(total_obj)
 
@@ -54,6 +56,7 @@ def main(argv=None):
     for c in chunks:
         count = count + 1        
         filepath = 'chunks/{}_{}.txt'.format(registry_id, count)
+        print "Writing file: {}".format(filepath)
         with open(filepath, 'w') as f:
             json.dump(c, f, indent=4)
 

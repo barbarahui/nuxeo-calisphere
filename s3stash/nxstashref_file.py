@@ -19,9 +19,10 @@ class NuxeoStashFile(NuxeoStashRef):
                  bucket='ucldc-nuxeo-ref-media',
                  region='us-west-2',
                  pynuxrc='~/.pynuxrc',
-                 replace=False):
+                 replace=False,
+                 **kwargs):
         super(NuxeoStashFile, self).__init__(path, bucket, region, pynuxrc,
-                                             replace)
+                                             replace, **kwargs)
 
     def nxstashref(self):
         ''' download file and stash in s3 '''
