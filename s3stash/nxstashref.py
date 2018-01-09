@@ -74,15 +74,14 @@ class NuxeoStashRef(object):
         shutil.rmtree(self.tmp_dir)
 
     def _download_nuxeo_file(self):
+        # https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
         res = requests.get(self.source_download_url,
                            headers=self.nx.document_property_headers,
-                           auth=self.nx.auth)
+                           auth=self.nx.auth, stream=True)
         res.raise_for_status()
         with open(self.source_filepath, 'wb') as f:
             for block in res.iter_content(1024):
-                if block:
-                    f.write(block)
-                    f.flush()
+                f.write(block)
         self.logger.info("Downloaded file from {} to {}".format(
             self.source_download_url, self.source_filepath))
 
