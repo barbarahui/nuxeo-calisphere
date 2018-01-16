@@ -80,7 +80,7 @@ class NuxeoStashRef(object):
                            auth=self.nx.auth, stream=True)
         res.raise_for_status()
         with open(self.source_filepath, 'wb') as f:
-            for block in res.iter_content(1024):
+            for block in res.iter_content(chunk_size=None):
                 f.write(block)
         self.logger.info("Downloaded file from {} to {}".format(
             self.source_download_url, self.source_filepath))
