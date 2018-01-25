@@ -47,6 +47,11 @@ class NuxeoStashThumb(NuxeoStashRef):
         if not self.has_file:
             return self.report
 
+        self.s3_stashed = self._is_s3_stashed()
+        self._update_report('already_s3_stashed', self.s3_stashed)
+        if not self.replace and self.s3_stashed:
+            return self.report
+
         # get file details
         self.file_info = self._get_file_info(self.metadata)
         self.source_download_url = self.file_info['url']
