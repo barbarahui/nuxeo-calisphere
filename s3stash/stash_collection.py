@@ -43,11 +43,15 @@ class Stash(object):
 
         self.dh = DeepHarvestNuxeo(self.path, '', pynuxrc=self.pynuxrc)
 
-        self.objects = self.dh.fetch_objects()
+        self.objects = self.fetch_objects()
 
         self.components = {}
         for obj in self.objects:
             self.components[obj['uid']] = self.dh.fetch_components(obj)
+
+    def fetch_objects(self):
+        ''' fetch objects to process '''
+        return self.dh.fetch_objects()
 
     def images(self):
         ''' stash Nuxeo image files on s3 '''
