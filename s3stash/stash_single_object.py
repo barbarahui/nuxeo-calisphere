@@ -48,23 +48,11 @@ def s3_report(report_file, report):
         json.dumps(report, sort_keys=True, indent=4)
     )
 
-def main(argv=None):
-
-    parser = argparse.ArgumentParser(
-        description='deep harvest nuxeo object, including components')
-    parser.add_argument('path', help="Nuxeo document path")
-    parser.add_argument(
-        '--pynuxrc', default='~/.pynuxrc', help="rc file for use by pynux")
-    parser.add_argument(
-        '--replace',
-        action="store_true",
-        help="replace files on s3 if they already exist")
-    if argv is None:
-        argv = parser.parse_args()
+def main(path, pynuxrc="~/.pynuxrc", replace=True):
 
     # logging
     # FIXME would like to name log with nuxeo UID
-    filename = os.path.basename(argv.path)
+    filename = os.path.basename(path)
     logfile = "logs/{}.log".format(filename)
     print "LOG:\t{}".format(logfile)
     logging.basicConfig(
@@ -74,9 +62,9 @@ def main(argv=None):
         datefmt='%m/%d/%Y %I:%M:%S %p')
     logger = logging.getLogger(__name__)
 
-    stash = Stash(argv.path, argv.pynuxrc, argv.replace)
+    stash = Stash(path, pynuxrc, replace)
  
-    filename = os.path.basename(argv.path)
+    filename = os.path.basename(path)
 
     # stash images for use with iiif server
     print 'stashing images...'
@@ -141,10 +129,28 @@ def main(argv=None):
         )
     )
     print summary
-    publish_to_harvesting('Deep Harvest for {} done'.format(argv.path),
+    publish_to_harvesting('Deep Harvest for {} done'.format(path),
                           summary)
 
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(
+        description='deep harvest nuxeo object, including components')
+    parser.add_argument('path', help="Nuxeo document path")
+    parser.add_argument(
+        '--pynuxrc', default='~/.pynuxrc', help="rc file for use by pynux")
+    parser.add_argument(
+        '--replace',
+        action="store_true",
+        help="replace files on s3 if they already exist")
+    
+    argv = parser.parse_args()    
+
+    path = argv.path
+    pynuxrc = argv.pynuxrc
+    replace = argv.replace
+
+    sys.exit(
+        main(
+            path, pynuxrc=pynuxrc, replace=replace))
