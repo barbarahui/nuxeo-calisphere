@@ -13,7 +13,7 @@ def main(argv=None):
     parser.add_argument('path', help="Nuxeo path to collection")
     parser.add_argument(
         '--pynuxrc',
-        default='~/.pynuxrc-prod',
+        default='~/.pynuxrc',
         help="rcfile for use with pynux utils")
     parser.add_argument(
         '--components',
@@ -27,6 +27,13 @@ def main(argv=None):
     objects = dh.fetch_objects()
     object_count = len(objects)
     print "finished fetching objects. {} found".format(object_count)
+
+    uid_set = set()
+    for obj in objects:
+        uid_set.add(obj['uid'])         
+
+    unique = len(uid_set)
+    print "unique uid count: {}".format(unique)
 
     if not argv.components:
         return
