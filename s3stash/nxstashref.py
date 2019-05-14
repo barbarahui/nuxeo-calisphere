@@ -88,6 +88,22 @@ class NuxeoStashRef(object):
     def _get_file_info(self, metadata):
         ''' given the full metadata for an object, get file download url '''
         info = {}
+
+        # for videos, try to get nuxeo transcoded video file url first
+        if metadata['type'] == 'CustomVideo':
+           try:
+               transcoded_video = metadata['properties']['vid:transcodedVideos']
+               for tv in transcoded_video:
+                  if tv['content']['mime-type'] == 'video/mp4':
+                     url = tv['content']['data']
+                     url = url.replace('/nuxeo/', '/Nuxeo/')
+                     info['url'] = url.strip()
+                     info['mimetype'] = tv['content']['mime-type'].strip()
+                     info['filename'] = tv['content']['name'].strip()
+                     return info
+           except KeyError:
+               pass
+
         try:
             file_content = metadata['properties']['file:content']
         except KeyError:
