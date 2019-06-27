@@ -20,15 +20,16 @@ setup(
         'https://github.com/mredar/jsonpath/archive/master.zip#egg=jsonpath',
         'https://github.com/barbarahui/ucldc-iiif/archive/master.zip#egg=ucldc-iiif'
     ],
+    # pinning versions here for ingest_deploy as a stopgap until we are moved to python3
     install_requires=[
         'argparse',
-        'boto',
-        'boto3',
+	'boto==2.49.0',
+        'boto3==1.9.160',
         'pynux',
-        'python-magic',
-        'couchdb',
-        'jsonpath',
-        'akara',
+        'python-magic==0.4.15',
+        'couchdb==0.9',
+        'jsonpath==0.54',
+	'akara==2.0.0a4',
         'ucldc-iiif'
     ],
     packages=['deepharvest', 's3stash'],
