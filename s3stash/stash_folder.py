@@ -1,65 +1,60 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-import sys
+import sys, os
 import argparse
 import logging
-from s3stash.stash_collection import Stash
+from s3stash.stash_collection import Stash as StashCollection
+from s3stash.publish_to_harvesting import publish_to_harvesting
 
 _loglevel_ = 'INFO'
 
-def main(nxpath, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
+class Stash(StashCollection):
+    '''
+       stash various files on s3 for a given nuxeo path
+       including any components if complex
+    '''
+    def __init__(self, path, pynuxrc, replace=False, loglevel=_loglevel_):
+        super(Stash, self).__init__(path, pynuxrc, replace, loglevel)
+
+        self.logger = logging.getLogger(__name__)
+
+def main(path, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
     # set up logging
-    logfile = 'logs/stash_folder'
     numeric_level = getattr(logging, loglevel, None)
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
     # log to stdout/err to capture in parent process log
-    # TODO: save log to S3
     logging.basicConfig(
         level=numeric_level,
         format='%(asctime)s (%(name)s) [%(levelname)s]: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p',
         stream=sys.stderr)
     logger = logging.getLogger(__name__)
+    logger.info('path: {}'.format(path))
 
-    stash = Stash(nxpath, pynuxrc, replace)
+    stash = Stash(path, pynuxrc, replace)
 
     # stash images for use with iiif server
-    print 'stashing images...'
     image_report = stash.images()
     info = 'finished stashing images'
     logger.info(info)
-    print info
-    report_file = "images.json"
-    print "report:\t{}\n".format(report_file)
 
     # stash text, audio, video
-    print 'stashing non-image files (text, audio, video)...'
     file_report = stash.files()
     info = 'finished stashing files'
     logger.info(info)
-    print info
-    report_file = "files.json"
-    print "report:\t{}\n".format(report_file)
 
     # stash thumbnails for text, audio, video
-    print 'stashing thumbnails for non-image files (text, audio, video)...'
     thumb_report = stash.thumbnails()
     info = 'finished stashing thumbnails'
     logger.info(info)
-    print info
-    report_file = "thumbs.json"
-    print "report:\t{}\n".format(report_file)
 
     # stash media.json files
-    print 'stashing media.json files for collection...'
     mediajson_report = stash.media_json()
     info = 'finished stashing media.json'
     logger.info(info)
-    print info
-    report_file = "mediajson.json"
-    print "report:\t{}\n".format(report_file)
 
     # print some information about how it went
     images_stashed = len(
@@ -72,6 +67,7 @@ def main(nxpath, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
         key for key, value in mediajson_report.iteritems() if value['stashed']
     ])
 
+    # TODO: make sure this is in rqworker log
     summary = ''.join((
         "SUMMARY:\n",
         "objects processed:              {}\n".format(len(stash.objects)),
@@ -82,12 +78,14 @@ def main(nxpath, pynuxrc="~/.pynuxrc", replace=True, loglevel=_loglevel_):
         "media.json files stashed:       {}\n".format(mediajson_stashed),
         )
     )
-    print summary 
+    print(summary)
+    publish_to_harvesting('Deep Harvest for {} done'.format(path),
+                          summary)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Deep harvest objects in a given folder in nuxeo')
+        description='deep harvest a nuxeo folder')
     parser.add_argument('path', help='nuxeo path')
     parser.add_argument(
         '--pynuxrc', default='~/.pynuxrc', help='rc file for use by pynux')
