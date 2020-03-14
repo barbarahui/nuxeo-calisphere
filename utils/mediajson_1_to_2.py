@@ -15,7 +15,7 @@ def main():
         there is likely a lot of crud on s3
     '''
     bucketname = "static.ucldc.cdlib.org"
-    #keyname = "media_json_2/a0df3f41-8c54-42dd-b7f3-f3bf95011c9f-media.json" # nightingale tiff
+    # keyname = "media_json_2/a0df3f41-8c54-42dd-b7f3-f3bf95011c9f-media.json" # nightingale tiff
     keyname = "media_json_2/08999aaf-03f9-4054-943e-24f66b2ac9fe-media.json" # Henry O. Nightingale diary, 1865
     #keyname = "media_json_2/0061295f-e68f-48bc-8c81-8fb596cd0bd9-media.json" # Woman taking patient's weight at SFGH AIDS Clinic
     s3 = boto3.client('s3')
@@ -28,24 +28,12 @@ def main():
     with open("tmp.json", "r") as f:
         json_version_1 = json.load(f)
     
-    import pprint
-    pp = pprint.PrettyPrinter(indent=4)
-    print('version 1')
-    print('---------------------------')
-    pp.pprint(json_version_1)
-    print('---------------------------')
-
     # do parent object
     version2 = transform_top_level(json_version_1)
 
     # do structMap (for complex objects) 
     if json_version_1.get('structMap'):
         version2['structMap'] = transform_structmap(json_version_1['structMap'])
-
-    print('version 2')
-    print('---------------------------')
-    pp.pprint(version2)
-    print('---------------------------')
 
     # stash new version on s3
     version2_filename = "version2.json"
@@ -58,10 +46,8 @@ def transform_top_level(content):
     ''' add new properties to enable file download from calisphere '''
     # new top level properties: mimetype, orig_filename, version
     href = content['href']
-    mimetype = get_mimetype(href)
-    orig_filename = get_orig_filename(href)
-    content['orig_filename'] = orig_filename
-    content['mimetype'] = mimetype
+    content['orig_filename'] = get_orig_filename(href)
+    content['mimetype'] = get_mimetype(href)
     content['version'] = '2.0'
 
     return content
@@ -75,12 +61,19 @@ def transform_structmap(structMap):
         new_child = {}
         metadata = {}
         for key, value in child.iteritems():
-            if key in TOP_LEVEL_PROPERTIES:
+            if key == 'metadata':
+                metadata = value
+            elif key in TOP_LEVEL_PROPERTIES:
+                print(key)
                 new_child[key] = value
             else:
+                print(key)
                 metadata[key] = value
         new_child['metadata'] = metadata
-        # TODO: add orig_filename, mimetype
+        href = child['href']
+        new_child['mimetype'] = get_mimetype(href)
+        new_child['orig_filename'] = get_orig_filename(href)
+         
         new_structMap.append(new_child)
 
     return new_structMap 
