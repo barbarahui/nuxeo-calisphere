@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 import sys
 from pynux import utils
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import tempfile
 import logging
 import shutil
@@ -74,10 +76,28 @@ class NuxeoStashRef(object):
         shutil.rmtree(self.tmp_dir)
 
     def _download_nuxeo_file(self):
+
+        # https://findwork.dev/blog/advanced-usage-python-requests-timeouts-retries-hooks/#retry-on-failure
+        retry_strategy = Retry(
+            total=3,
+            status_forcelist=[54, 104, 429],
+)
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        http = requests.Session()
+        http.mount("https://", adapter)
+        http.mount("http://", adapter)
+
+        #response = http.get("https://en.wikipedia.org/w/api.php")
+
         # https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
+        res = http.get(self.source_download_url,
+                           headers=self.nx.document_property_headers,
+                           auth=self.nx.auth, stream=True)
+        '''
         res = requests.get(self.source_download_url,
                            headers=self.nx.document_property_headers,
                            auth=self.nx.auth, stream=True)
+        '''
         res.raise_for_status()
         with open(self.source_filepath, 'wb') as f:
             for block in res.iter_content(chunk_size=None):
