@@ -4,7 +4,9 @@
 import sys
 import argparse
 from pynux import utils
-
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+import json
 
 def main(argv=None):
 
@@ -22,6 +24,9 @@ def main(argv=None):
     uid = nx.get_uid(path)
     metadata = nx.get_metadata(uid=uid)
 
+    json_metadata = json.dumps(metadata, sort_keys=True, indent=4)
+
+    print(json_metadata)
 
 if __name__ == "__main__":
     sys.exit(main())
