@@ -29,12 +29,12 @@ for ((i = 0 ; i < $numPages ; i++)); do
             dupCount=$((dupCount+1))
         else
             uids+=($currUid) 
-            count=$((count+1))
+            uniqueCount=$((uniqueCount+1))
         fi
     done
 
 done
 
-echo "dupCount: $dupCount"
-echo "count: $count"
+echo "Duplicate count: $dupCount"
+echo "Unique count: $uniqueCount"
 
