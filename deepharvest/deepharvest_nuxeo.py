@@ -54,7 +54,15 @@ class DeepHarvestNuxeo(object):
         for child in self.nx.nxql(query):
             objects.extend(self.fetch_harvestable(child))
 
-        return objects
+        # make sure UIDs are unique
+        unique_uids = []
+        unique_objects = []
+        for obj in objects:
+            if not obj['uid'] in unique_uids:
+                unique_uids.append(obj['uid'])
+                unique_objects.append(obj)
+        
+        return unique_objects
 
     def fetch_harvestable(self, start_obj, depth=-1):
         '''
