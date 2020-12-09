@@ -38,24 +38,24 @@ def main(argv=None):
 
 
 
-    print "collection nuxeo_path:", nuxeo_path
+    print("collection nuxeo_path:", nuxeo_path)
 
     # get the Nuxeo ID for the collection
     nx = utils.Nuxeo(rcfile=argv.rcfile, loglevel=argv.loglevel.upper())
     nuxeo_id = nx.get_uid(nuxeo_path)
-    print "collection nuxeo_id:", nuxeo_id
+    print("collection nuxeo_id:", nuxeo_id)
 
     # connect to S3
     conn = connect_s3(calling_format=OrdinaryCallingFormat())
     bucketpath = bucketpath.strip("/")
     bucketbase = bucketpath.split("/")[0]
-    print "bucketpath:", bucketpath
-    print "bucketbase:", bucketbase
+    print("bucketpath:", bucketpath)
+    print("bucketbase:", bucketbase)
 
     try:
         bucket = conn.get_bucket(bucketbase)
     except boto.exception.S3ResponseError:
-        print "bucket doesn't exist on S3:", bucketbase
+        print("bucket doesn't exist on S3:", bucketbase)
 
     items = nx.children(nuxeo_path)
 
@@ -68,7 +68,7 @@ def main(argv=None):
         #print "s3_url", s3_url
 
         if item['type'] != 'Organization' and not (bucket.get_key(parts.path)):
-            print "object doesn't exist on S3:", parts.path, item['path']
+            print("object doesn't exist on S3:", parts.path, item['path'])
             if stash:
                nxstash = NuxeoStashMediaJson(
                   item['path'],
@@ -77,7 +77,7 @@ def main(argv=None):
                   pynuxrc,
                   True)
                nxstash.nxstashref()
-               print "stashed for item['path']"
+               print("stashed for item['path']")
         '''
         else:
             print "yup the object exists!:", parts.path
