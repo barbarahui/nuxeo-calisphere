@@ -16,6 +16,12 @@ TYPE_MAP = {
     "Organization": "file"
 }
 
+# for some reason, using `ORDER BY ecm:name` in the query avoids the
+# bug where the API was returning duplicate records from Nuxeo
+PARENT_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' AND " \
+              "ecm:currentLifeCycleState != 'deleted' ORDER BY ecm:name"
+
+
 CHILD_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' AND " \
              "ecm:currentLifeCycleState != 'deleted' ORDER BY ecm:pos"
 
@@ -50,7 +56,7 @@ class DeepHarvestNuxeo(object):
     def fetch_objects(self):
         ''' fetch Nuxeo objects at a given path '''
         objects = []
-        query = CHILD_NXQL.format(self.uid)
+        query = PARENT_NXQL.format(self.uid)
         for child in self.nx.nxql(query):
             objects.extend(self.fetch_harvestable(child))
 
