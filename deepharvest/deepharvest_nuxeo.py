@@ -19,11 +19,11 @@ TYPE_MAP = {
 # for some reason, using `ORDER BY ecm:name` in the query avoids the
 # bug where the API was returning duplicate records from Nuxeo
 PARENT_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' AND " \
-              "ecm:currentLifeCycleState != 'deleted' ORDER BY ecm:name"
+              "ecm:isTrashed = 0 ORDER BY ecm:name"
 
 
 CHILD_NXQL = "SELECT * FROM Document WHERE ecm:parentId = '{}' AND " \
-             "ecm:currentLifeCycleState != 'deleted' ORDER BY ecm:pos"
+             "ecm:isTrashed = 0 ORDER BY ecm:pos"
 
 
 class DeepHarvestNuxeo(object):
