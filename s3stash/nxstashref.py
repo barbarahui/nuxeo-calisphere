@@ -80,7 +80,7 @@ class NuxeoStashRef(object):
         # https://findwork.dev/blog/advanced-usage-python-requests-timeouts-retries-hooks/#retry-on-failure
         retry_strategy = Retry(
             total=3,
-            status_forcelist=[54, 104, 429],
+            status_forcelist=[413, 429, 500, 502, 503, 504],
 )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         http = requests.Session()
