@@ -106,7 +106,17 @@ def is_s3_stashed(bucket, key, region):
 def get_nuxeo_path(registry_id):
     ''' given ucldc registry collection ID, get Nuxeo path for collection '''
     url = "{}collection/{}/?format=json".format(REGISTRY_API_BASE, registry_id)
-    res = requests.get(url)
+
+    retry_strategy = Retry(
+        total=3,
+        status_forcelist=[413, 429, 500, 502, 503, 504],
+)
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+
+    res = http.get(url, timeout=1, 3)
     res.raise_for_status()
     md = json.loads(res.content)
     nuxeo_path = md['harvest_extra_data']
