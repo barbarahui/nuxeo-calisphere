@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import boto
 import logging
 from boto.s3.connection import OrdinaryCallingFormat
+from requests.packages.urllib3.util.retry import Retry
 import urlparse
 import requests
 import json
