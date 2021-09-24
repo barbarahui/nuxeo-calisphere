@@ -116,7 +116,7 @@ def get_nuxeo_path(registry_id):
     http.mount("https://", adapter)
     http.mount("http://", adapter)
 
-    res = http.get(url, timeout=1, 3)
+    res = http.get(url, timeout=1)
     res.raise_for_status()
     md = json.loads(res.content)
     nuxeo_path = md['harvest_extra_data']

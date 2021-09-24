@@ -92,7 +92,7 @@ class NuxeoStashRef(object):
         # https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
         res = http.get(self.source_download_url,
                            headers=self.nx.document_property_headers,
-                           auth=self.nx.auth, stream=True, timeout=1, 3)
+                           auth=self.nx.auth, stream=True, timeout=1)
         '''
         res = requests.get(self.source_download_url,
                            headers=self.nx.document_property_headers,
