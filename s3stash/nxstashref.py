@@ -87,17 +87,17 @@ class NuxeoStashRef(object):
         http.mount("https://", adapter)
         http.mount("http://", adapter)
 
-        #response = http.get("https://en.wikipedia.org/w/api.php")
-
-        # https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
+        # timeouts based on those used by nuxeo-python-client
+        # see: https://github.com/nuxeo/nuxeo-python-client/blob/master/nuxeo/constants.py
+        # but tweaked to be slightly larger than a multiple of 3, which is recommended
+        # in the requests documentation.
+        # see: https://docs.python-requests.org/en/master/user/advanced/#timeouts
+        timeout_connect = 12.05
+        timeout_read = (60 * 10) + 0.05
         res = http.get(self.source_download_url,
                            headers=self.nx.document_property_headers,
-                           auth=self.nx.auth, stream=True, timeout=1)
-        '''
-        res = requests.get(self.source_download_url,
-                           headers=self.nx.document_property_headers,
-                           auth=self.nx.auth, stream=True)
-        '''
+                           auth=self.nx.auth, stream=True, timeout=(timeout_connect, timeout_read))
+
         res.raise_for_status()
         with open(self.source_filepath, 'wb') as f:
             for block in res.iter_content(chunk_size=None):

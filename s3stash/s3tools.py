@@ -118,7 +118,14 @@ def get_nuxeo_path(registry_id):
     http.mount("https://", adapter)
     http.mount("http://", adapter)
 
-    res = http.get(url, timeout=1)
+    # timeouts based on those used by nuxeo-python-client
+    # see: https://github.com/nuxeo/nuxeo-python-client/blob/master/nuxeo/constants.py
+    # but tweaked to be slightly larger than a multiple of 3, which is recommended
+    # in the requests documentation.
+    # see: https://docs.python-requests.org/en/master/user/advanced/#timeouts
+    timeout_connect = 12.05
+    timeout_read = (60 * 10) + 0.05
+    res = http.get(url, timeout=(timeout_connect, timeout_read))
     res.raise_for_status()
     md = json.loads(res.content)
     nuxeo_path = md['harvest_extra_data']
