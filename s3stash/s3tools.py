@@ -3,6 +3,8 @@
 from __future__ import unicode_literals
 
 import boto
+import boto3
+import botocore
 import logging
 from boto.s3.connection import OrdinaryCallingFormat
 import urlparse
@@ -37,36 +39,34 @@ def s3stash(filepath, bucket, key, region, mimetype, replace=False):
     logger.info("bucketbase: {}".format(bucketbase))
     logger.info("s3_url: {}".format(s3_url))
 
-    # FIXME ugh this is such a hack. not sure what is going on here.
-    if region == 'us-east-1':
-        conn = boto.connect_s3(calling_format=OrdinaryCallingFormat())
-    else:
-        conn = boto.s3.connect_to_region(region)
+    config = botocore.config.Config(
+        connect_timeout=120,
+        read_timeout=120,
+        retries={'max_attempts': 10}
+    )
+
+    s3 = boto3.resource('s3', config=config)
 
     try:
-        bucket = conn.get_bucket(bucketbase)
-    except boto.exception.S3ResponseError:
-        bucket = conn.create_bucket(bucketbase, location=region)
-        logger.info("Created S3 bucket {}".format(bucketbase))
-
-    if not (bucket.get_key(parts.path)):
-        key = bucket.new_key(parts.path)
-        key.set_metadata("Content-Type", mimetype)
-        key.set_contents_from_filename(filepath)
-        msg = "created {0}".format(s3_url)
-        action = 'created'
-        logger.info(msg)
-    elif replace:
-        key = bucket.get_key(parts.path)
-        key.set_metadata("Content-Type", mimetype)
-        key.set_contents_from_filename(filepath)
-        msg = "re-uploaded {}".format(s3_url)
-        action = 'replaced'
-        logger.info(msg)
+        object = s3.Object(bucketbase, parts.path).load()
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            s3.Object(bucketbase, parts.path).upload_file(filepath, ExtraArgs={'ContentType': mimetype})
+            msg = "created {0}".format(s3_url)
+            action = 'created'
+            logger.info(msg)
+        else:
+            raise e
     else:
-        msg = "key already existed; not re-uploading {0}".format(s3_url)
-        action = 'skipped'
-        logger.info(msg)
+        if replace:
+            s3.Object(bucketbase, parts.path).upload_file(filepath, ExtraArgs={'ContentType': mimetype})
+            msg = "re-uploaded {}".format(s3_url)
+            action = 'replaced'
+            logger.info(msg)
+        else:
+            msg = "key already existed; not re-uploading {0}".format(s3_url)
+            action = 'skipped'
+            logger.info(msg)
 
     report['s3_url'] = s3_url
     report['msg'] = msg
