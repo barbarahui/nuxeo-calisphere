@@ -34,6 +34,7 @@ def s3stash(filepath, bucket, key, region, mimetype, replace=False):
     bucketbase = bucket.split("/")[0]
     s3_url = S3_URL_FORMAT.format(bucketpath, key)
     parts = urlparse.urlsplit(s3_url)
+    path = parts.path.lstrip('/')
 
     logger.info("bucketpath: {}".format(bucketpath))
     logger.info("bucketbase: {}".format(bucketbase))
@@ -48,10 +49,10 @@ def s3stash(filepath, bucket, key, region, mimetype, replace=False):
     s3 = boto3.resource('s3', config=config)
 
     try:
-        object = s3.Object(bucketbase, parts.path).load()
+        object = s3.Object(bucketbase, path).load()
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "404":
-            s3.Object(bucketbase, parts.path).upload_file(filepath, ExtraArgs={'ContentType': mimetype})
+            s3.Object(bucketbase, path).upload_file(filepath, ExtraArgs={'ContentType': mimetype})
             msg = "created {0}".format(s3_url)
             action = 'created'
             logger.info(msg)
@@ -59,7 +60,7 @@ def s3stash(filepath, bucket, key, region, mimetype, replace=False):
             raise e
     else:
         if replace:
-            s3.Object(bucketbase, parts.path).upload_file(filepath, ExtraArgs={'ContentType': mimetype})
+            s3.Object(bucketbase, path).upload_file(filepath, ExtraArgs={'ContentType': mimetype})
             msg = "re-uploaded {}".format(s3_url)
             action = 'replaced'
             logger.info(msg)
@@ -86,7 +87,8 @@ def is_s3_stashed(bucket, key, region):
     bucketbase = bucket.split("/")[0]
     s3_url = S3_URL_FORMAT.format(bucketpath, key)
     parts = urlparse.urlsplit(s3_url)
-
+    path = parts.path.lstrip('/')
+ 
     # FIXME ugh this is such a hack. not sure what is going on here.
     if region == 'us-east-1':
         conn = boto.connect_s3(calling_format=OrdinaryCallingFormat())
@@ -99,7 +101,7 @@ def is_s3_stashed(bucket, key, region):
         logger.info("Bucket does not exist: {}".format(bucketbase))
         return False
 
-    if bucket.get_key(parts.path):
+    if bucket.get_key(path):
         return True
     else:
         return False
