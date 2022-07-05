@@ -90,6 +90,7 @@ def is_s3_stashed(bucket, key, region):
     path = parts.path.lstrip('/')
  
     # FIXME ugh this is such a hack. not sure what is going on here.
+    print(region)
     if region == 'us-east-1':
         conn = boto.connect_s3(calling_format=OrdinaryCallingFormat())
     else:

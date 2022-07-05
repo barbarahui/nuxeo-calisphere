@@ -12,7 +12,7 @@ import urlparse
 import logging
 
 OBJECT_LEVEL_PROPERTIES = ['format', 'href', 'id', 'label', 'dimensions', 'structMap']
-VALID_VALUES = {'format': ['image', 'audio', 'video', 'file']}
+VALID_VALUES = {'format': ['image', 'audio', 'video', 'file', '3d']}
 
 class MediaJson():
     def __init__(self):

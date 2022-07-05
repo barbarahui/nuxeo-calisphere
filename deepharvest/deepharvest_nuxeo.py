@@ -13,7 +13,8 @@ TYPE_MAP = {
     "CustomAudio": "audio",
     "CustomVideo": "video",
     "CustomFile": "file",
-    "Organization": "file"
+    "Organization": "file",
+    "CustomThreeD": "3d"
 }
 
 # for some reason, using `ORDER BY ecm:name` in the query avoids the
